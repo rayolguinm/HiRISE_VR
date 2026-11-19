@@ -1,0 +1,26 @@
+{
+ "title": "Uranius_Mons_Crater_2710E_278N",
+ "slug": "uranius-mons-crater-2710e-278n",
+ "dtm_id": "DTEED_067363_2080_067495_2080_A01",
+ "ortho": "ESP_067363_2080_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.177915995446126,
+ "native_post_m": 2.0137193438287,
+ "downsample": 7.54,
+ "size_m": 3870.368578838762,
+ "z_offset_m": 792.187255859375,
+ "z_scale_m": 0.0055639892578125,
+ "nodata": 65535,
+ "relief_m": 361.6593017578125,
+ "window_px": [
+  3877,
+  808,
+  1922
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 6.265287752973884,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

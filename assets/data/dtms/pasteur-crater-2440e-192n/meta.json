@@ -1,0 +1,26 @@
+{
+ "title": "Pasteur_Crater_2440E_192N",
+ "slug": "pasteur-crater-2440e-192n",
+ "dtm_id": "DTEEC_055160_1995_055437_1995_A01",
+ "ortho": "ESP_055160_1995_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.953914049792026,
+ "native_post_m": 1.0094908393789,
+ "downsample": 15.8,
+ "size_m": 4068.248082696967,
+ "z_offset_m": -3004.960693359375,
+ "z_scale_m": 0.00277724609375,
+ "nodata": 65535,
+ "relief_m": 180.52099609375,
+ "window_px": [
+  1395,
+  903,
+  4030
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 2.9708014106135887,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

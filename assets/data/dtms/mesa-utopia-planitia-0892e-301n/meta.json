@@ -1,0 +1,26 @@
+{
+ "title": "Mesa_Utopia_Planitia_0892E_301N",
+ "slug": "mesa-utopia-planitia-0892e-301n",
+ "dtm_id": "DTEED_072540_2105_072461_2105_A01",
+ "ortho": "ESP_072461_2105_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 13.655201146450148,
+ "native_post_m": 2.0115980891651,
+ "downsample": 6.79,
+ "size_m": 3482.076292344788,
+ "z_offset_m": -3659.656982421875,
+ "z_scale_m": 0.0030081430288461538,
+ "nodata": 65535,
+ "relief_m": 195.529296875,
+ "window_px": [
+  2610,
+  671,
+  1731
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 4.555165037170103,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

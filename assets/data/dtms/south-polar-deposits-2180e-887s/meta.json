@@ -1,0 +1,26 @@
+{
+ "title": "South_Polar_Deposits_2180E_887S",
+ "slug": "south-polar-deposits-2180e-887s",
+ "dtm_id": "DTEPC_005721_0910_005735_0890_A01",
+ "ortho": "PSP_005721_0910_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 11.886274509803922,
+ "native_post_m": 1.0,
+ "downsample": 11.89,
+ "size_m": 3031.0,
+ "z_offset_m": 2603.29345703125,
+ "z_scale_m": 0.010283958082932693,
+ "nodata": 65535,
+ "relief_m": 668.457275390625,
+ "window_px": [
+  4508,
+  4751,
+  3031
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 6.149414062500001,
+ "projection": "POLAR STEREOGRAPHIC",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

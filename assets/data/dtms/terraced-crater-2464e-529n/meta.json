@@ -1,0 +1,26 @@
+{
+ "title": "Terraced_Crater_2464E_529N",
+ "slug": "terraced-crater-2464e-529n",
+ "dtm_id": "DTEEC_043627_2335_043548_2335_A01",
+ "ortho": "ESP_043627_2335_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 16.25668324063465,
+ "native_post_m": 0.99698273842276,
+ "downsample": 16.31,
+ "size_m": 4145.454226361836,
+ "z_offset_m": -1710.205078125,
+ "z_scale_m": 0.0011249230018028846,
+ "nodata": 65535,
+ "relief_m": 73.1199951171875,
+ "window_px": [
+  2432,
+  1099,
+  4158
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.1360169926364354,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

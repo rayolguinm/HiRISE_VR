@@ -1,0 +1,26 @@
+{
+ "title": "Terra_Sirenum_2161E_468S",
+ "slug": "terra-sirenum-2161e-468s",
+ "dtm_id": "DTEEC_074461_1330_075450_1330_A01",
+ "ortho": "ESP_074461_1330_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 12.52895703988406,
+ "native_post_m": 0.99933814362541,
+ "downsample": 12.54,
+ "size_m": 3194.8840451704355,
+ "z_offset_m": 2845.6953125,
+ "z_scale_m": 0.0033944298377403845,
+ "nodata": 65535,
+ "relief_m": 220.637939453125,
+ "window_px": [
+  1876,
+  838,
+  3197
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 2.416856360047195,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

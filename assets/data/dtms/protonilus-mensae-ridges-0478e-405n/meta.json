@@ -1,0 +1,26 @@
+{
+ "title": "Protonilus_Mensae_Ridges_0478E_405N",
+ "slug": "protonilus-mensae-ridges-0478e-405n",
+ "dtm_id": "DTEED_049766_2210_049621_2210_A01",
+ "ortho": "ESP_049766_2210_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 13.428450882350845,
+ "native_post_m": 2.0036600204795,
+ "downsample": 6.7,
+ "size_m": 3424.2549749994655,
+ "z_offset_m": -1446.1951904296875,
+ "z_scale_m": 0.01042760479266827,
+ "nodata": 65535,
+ "relief_m": 677.7943115234375,
+ "window_px": [
+  2083,
+  669,
+  1709
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.6988807299305333,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

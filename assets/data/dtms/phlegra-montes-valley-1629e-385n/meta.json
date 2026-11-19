@@ -1,0 +1,26 @@
+{
+ "title": "Phlegra_Montes_Valley_1629E_385N",
+ "slug": "phlegra-montes-valley-1629e-385n",
+ "dtm_id": "DTEED_089007_2190_069729_2190_A01",
+ "ortho": "ESP_089007_2190_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 16.36115495309748,
+ "native_post_m": 2.0058146697307,
+ "downsample": 8.16,
+ "size_m": 4172.094513039857,
+ "z_offset_m": -2655.355224609375,
+ "z_scale_m": 0.00696318359375,
+ "nodata": 65535,
+ "relief_m": 452.60693359375,
+ "window_px": [
+  4309,
+  954,
+  2080
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 6.756518823231691,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

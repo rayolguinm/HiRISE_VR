@@ -1,0 +1,26 @@
+{
+ "title": "Olympus_Mons_Systems_2330E_175N",
+ "slug": "olympus-mons-systems-2330e-175n",
+ "dtm_id": "DTEEC_064700_1975_064555_1975_A01",
+ "ortho": "ESP_064700_1975_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.58309112834378,
+ "native_post_m": 1.0098318266144,
+ "downsample": 15.43,
+ "size_m": 3973.688237727664,
+ "z_offset_m": 1054.9305419921875,
+ "z_scale_m": 0.00037152005709134616,
+ "nodata": 65535,
+ "relief_m": 24.1488037109375,
+ "window_px": [
+  2713,
+  948,
+  3935
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 2.996394587896686,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

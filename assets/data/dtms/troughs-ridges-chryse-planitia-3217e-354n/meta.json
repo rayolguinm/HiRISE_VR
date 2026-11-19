@@ -1,0 +1,26 @@
+{
+ "title": "Troughs_Ridges_Chryse_Planitia_3217E_354N",
+ "slug": "troughs-ridges-chryse-planitia-3217e-354n",
+ "dtm_id": "DTEED_077490_2155_077556_2155_A01",
+ "ortho": "ESP_077490_2155_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 14.368935264614608,
+ "native_post_m": 2.007714242453,
+ "downsample": 7.16,
+ "size_m": 3664.078492476725,
+ "z_offset_m": -4027.541748046875,
+ "z_scale_m": 0.0014535193810096155,
+ "nodata": 65535,
+ "relief_m": 94.478759765625,
+ "window_px": [
+  4169,
+  800,
+  1825
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 6.3839761626385725,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

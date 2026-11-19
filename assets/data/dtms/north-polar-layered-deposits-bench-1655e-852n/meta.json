@@ -1,0 +1,26 @@
+{
+ "title": "North_Polar_Layered_Deposits_Bench_1655E_852N",
+ "slug": "north-polar-layered-deposits-bench-1655e-852n",
+ "dtm_id": "DTEPD_010109_2655_009991_2655_A01",
+ "ortho": "PSP_010109_2655_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 16.4078431372549,
+ "native_post_m": 2.0,
+ "downsample": 8.2,
+ "size_m": 4184.0,
+ "z_offset_m": -4313.9833984375,
+ "z_scale_m": 0.012721101262019231,
+ "nodata": 65535,
+ "relief_m": 826.87158203125,
+ "window_px": [
+  1839,
+  547,
+  2092
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.532861476238625,
+ "projection": "POLAR STEREOGRAPHIC",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

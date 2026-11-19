@@ -1,0 +1,26 @@
+{
+ "title": "Small_Mounds_Chryse_Planitia_3227E_193N",
+ "slug": "small-mounds-chryse-planitia-3227e-193n",
+ "dtm_id": "DTEEC_025427_1995_025282_1995_A01",
+ "ortho": "ESP_025427_1995_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.882347669701627,
+ "native_post_m": 1.0094712501929,
+ "downsample": 15.73,
+ "size_m": 4049.998655773915,
+ "z_offset_m": -3789.97705078125,
+ "z_scale_m": 0.00038934420072115385,
+ "nodata": 65535,
+ "relief_m": 25.307373046875,
+ "window_px": [
+  4469,
+  1225,
+  4012
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.9817003623816585,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

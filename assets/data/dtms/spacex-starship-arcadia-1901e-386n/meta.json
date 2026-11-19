@@ -1,0 +1,26 @@
+{
+ "title": "Spacex_Starship_Arcadia_1901E_386N",
+ "slug": "spacex-starship-arcadia-1901e-386n",
+ "dtm_id": "DTEEC_061128_2190_061194_2190_A01",
+ "ortho": "ESP_061128_2190_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.617273671714061,
+ "native_post_m": 1.0028720187074,
+ "downsample": 15.57,
+ "size_m": 3982.4047862870857,
+ "z_offset_m": -3997.62890625,
+ "z_scale_m": 0.00027630709134615384,
+ "nodata": 65535,
+ "relief_m": 17.9599609375,
+ "window_px": [
+  4620,
+  1354,
+  3971
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 4.229103946859629,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

@@ -1,0 +1,26 @@
+{
+ "title": "USGS_Dune_2308E_692S",
+ "slug": "usgs-dune-2308e-692s",
+ "dtm_id": "DTEPC_032024_1105_031945_1105_A01",
+ "ortho": "ESP_032024_1105_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 10.145098039215686,
+ "native_post_m": 1.0,
+ "downsample": 10.15,
+ "size_m": 2587.0,
+ "z_offset_m": 738.5034790039062,
+ "z_scale_m": 0.00508945782001202,
+ "nodata": 65535,
+ "relief_m": 330.81475830078125,
+ "window_px": [
+  4249,
+  3887,
+  2587
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 5.057128906249999,
+ "projection": "POLAR STEREOGRAPHIC",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

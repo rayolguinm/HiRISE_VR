@@ -1,0 +1,26 @@
+{
+ "title": "Phlegra_Dorsa_Cone_Field_1743E_285N",
+ "slug": "phlegra-dorsa-cone-field-1743e-285n",
+ "dtm_id": "DTEEC_016479_2090_016334_2090_A01",
+ "ortho": "ESP_016479_2090_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.265641186821956,
+ "native_post_m": 1.0066559355158,
+ "downsample": 15.16,
+ "size_m": 3892.7385026395987,
+ "z_offset_m": -3473.68408203125,
+ "z_scale_m": 0.0013910118689903846,
+ "nodata": 65535,
+ "relief_m": 90.415771484375,
+ "window_px": [
+  9800,
+  1656,
+  3867
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 7.546305879676905,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

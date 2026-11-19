@@ -1,0 +1,26 @@
+{
+ "title": "South_Polar_Deposits_1416E_871S",
+ "slug": "south-polar-deposits-1416e-871s",
+ "dtm_id": "DTEPD_023009_0930_022839_0930_A01",
+ "ortho": "ESP_023009_0930_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 12.415686274509804,
+ "native_post_m": 2.0,
+ "downsample": 6.21,
+ "size_m": 3166.0,
+ "z_offset_m": 3502.06689453125,
+ "z_scale_m": 0.002955265925480769,
+ "nodata": 65535,
+ "relief_m": 192.09228515625,
+ "window_px": [
+  532,
+  2127,
+  1583
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 5.6474609375,
+ "projection": "POLAR STEREOGRAPHIC",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

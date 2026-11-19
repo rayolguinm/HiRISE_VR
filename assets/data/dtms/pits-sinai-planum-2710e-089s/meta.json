@@ -1,0 +1,26 @@
+{
+ "title": "Pits_Sinai_Planum_2710E_089S",
+ "slug": "pits-sinai-planum-2710e-089s",
+ "dtm_id": "DTEED_035411_1710_035266_1710_A01",
+ "ortho": "ESP_035411_1710_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 13.397905367100334,
+ "native_post_m": 2.0227743449441,
+ "downsample": 6.62,
+ "size_m": 3416.465868610585,
+ "z_offset_m": 4651.65234375,
+ "z_scale_m": 0.008385606971153847,
+ "nodata": 65535,
+ "relief_m": 545.064453125,
+ "window_px": [
+  2927,
+  650,
+  1689
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 4.8813151440395215,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}
