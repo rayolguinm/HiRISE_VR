@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>How it works: HiRISE in VR, the science and the tools</title>
+<meta name="description" content="Viewing HiRISE terrain meshes and orthoimages in virtual reality: the HiRISE 3D Topographic Reconstruction Pipeline and Twinmotion VR. By Raymundo &quot;R@y&quot; Olguin, HiROC and SIC, LPL, University of Arizona.">
+<meta name="author" content="Raymundo &quot;R@y&quot; Olguin">
+<meta name="theme-color" content="#0B0D12">
+<meta property="og:title" content="HiRISE in VR: fly over Mars">
+<meta property="og:description" content="From a HiRISE stereo DTM to a true-scale, textured mesh in a VR headset.">
+<meta property="og:image" content="docs/img/hero_terrain_render.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/css/site.css">
+<script type="importmap">{"imports":{
+  "three":"./assets/vendor/three/three.module.min.js",
+  "three/webgpu":"./assets/vendor/three/three.webgpu.min.js",
+  "three/addons/":"./assets/vendor/three/addons/"}}</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to the content</a>
+<div class="progress-line" aria-hidden="true"></div>
+<header class="bar solid" id="bar"><div class="wrap">
+  <a class="mark" href="index.html">HiRISE <span>in VR</span></a>
+  <span class="sp"></span>
+  <a class="link" href="index.html#contents">Contents</a>
+  <a class="link" href="#twinmotion">Twinmotion VR</a>
+  <button class="kbtn" type="button" id="kOpen" aria-haspopup="dialog">Search <kbd id="kKey">Ctrl K</kbd></button>
+</div></header>
+<nav class="rail show" id="rail" aria-label="Appendices">
+  <ol>
+    <li><a href="#texture">A Ortho selection</a></li>
+    <li><a href="#mesh">B Triangle budget</a></li>
+    <li><a href="#outputs">C Outputs</a></li>
+    <li><a href="#pipeline">D RUN.bat screens</a></li>
+    <li><a href="#frontend">E Front end</a></li>
+    <li><a href="#cli">F Command line</a></li>
+    <li><a href="#anatomy">G Inside the pipeline</a></li>
+    <li><a href="#twinmotion">H Twinmotion VR</a></li>
+    <li><a href="#help">I Troubleshooting</a></li>
+    <li><a href="#glossary">J Glossary</a></li>
+    <li><a href="#refs">References</a></li>
+  </ol>
+</nav>
+<main id="main"><div class="wrap">
+<section class="sec" style="padding-top:140px;padding-bottom:0" id="intro">
+  <div class="sec-head plain">
+    <h2>Appendices</h2>
+    <p>The HiRISE 3D Topographic Reconstruction Pipeline (obj_pipeline v6.3.9) in detail: how the orthoimage texture is selected, how the downsampling factor is set by the triangle budget, what each output folder contains, and how the RUN.bat front end works. Summarised from the HiRISE Ortho Selection page, the HiRISE Pipeline Anatomy and the Pipeline User Manual by Raymundo "R@y" Olguin, HiRISE Operations Center (HiROC) and Space Imagery Center (SIC), Lunar and Planetary Laboratory, University of Arizona.</p>
+  </div>
+</section>
+<section class="sec" id="texture">
+  <div class="sec-head plain">
+    <h2><span class="no">A</span>Choosing the orthoimage</h2>
+    <p>Several orthoimages, one surface. The ground sample distance blurs the ground, and the emission angle <i>e</i> displaces it horizontally wherever the DTM height is slightly off. Both are errors in metres on the ground, so they add in quadrature, and the smallest total wins.</p>
+  </div>
+  <pre class="formula">E = √( g² + (Δz · tan e)² )</pre>
+  <p class="prose small"><code>g</code> is the ortho grid (0.25, 0.5 or 1.0 m). <code>Δz</code> is the terrain's expected vertical precision: 0.3 m at 1 m posts, 1.0 m at 2 m posts (Sutton et al. 2022). An image with a data gap or known spacecraft jitter is pushed out first, and scores within 5 % go to the lower emission angle, then to fewer saturated pixels, then to higher coverage. The README "RMS z" is not used as &Delta;z: it is the residual of the tie to MOLA, not the vertical precision of the DTM.</p>
+  <div class="tool calc" id="calc">
+    <div class="calc-top">
+      <label>Example</label>
+      <span class="seg" role="group" aria-label="Examples" id="presetSeg"><button type="button" data-p="site" aria-pressed="true">Gully Monitoring (real)</button></span>
+      <label for="dz">Terrain Δz</label>
+      <span class="seg" role="group" aria-label="Terrain precision" id="dzSeg"><button type="button" data-dz="0.3" aria-pressed="true">1 m posts, 0.3 m</button><button type="button" data-dz="1.0" aria-pressed="false">2 m posts, 1.0 m</button></span>
+      <input type="number" id="dz" min="0.05" max="3" step="0.05" value="0.3" aria-label="Δz in metres" style="width:6em">
+    </div>
+    <div class="imgs">
+      <div class="img" data-i="0">
+        <h3><span id="name0">Image 1</span> <span class="status" id="st0"></span></h3>
+        <div class="row"><label>Binning</label><span class="seg bseg" role="group" aria-label="Image 1 binning"><button type="button" data-b="1" aria-pressed="true">bin 1</button><button type="button" data-b="2" aria-pressed="false">bin 2</button><button type="button" data-b="4" aria-pressed="false">bin 4</button></span></div>
+        <div class="row"><label for="e0">Emission angle</label><input type="range" id="e0" min="0" max="30" step="0.01" value="1.37"><span class="val" id="e0v"></span></div>
+        <div class="row"><label for="c0">Covers terrain</label><input type="range" id="c0" min="70" max="100" step="0.5" value="100"><span class="val" id="c0v"></span></div>
+        <label class="chk"><input type="checkbox" id="j0"> Known spacecraft jitter</label>
+        <div class="out"><div><b id="g0"></b><span>native grid (m)</span></div><div><b id="m0"></b><span>sideways shift (m)</span></div><div><b id="s0"></b><span>score E (m)</span></div></div>
+      </div>
+      <div class="img" data-i="1">
+        <h3><span id="name1">Image 2</span> <span class="status" id="st1"></span></h3>
+        <div class="row"><label>Binning</label><span class="seg bseg" role="group" aria-label="Image 2 binning"><button type="button" data-b="1" aria-pressed="true">bin 1</button><button type="button" data-b="2" aria-pressed="false">bin 2</button><button type="button" data-b="4" aria-pressed="false">bin 4</button></span></div>
+        <div class="row"><label for="e1">Emission angle</label><input type="range" id="e1" min="0" max="30" step="0.01" value="8.48"><span class="val" id="e1v"></span></div>
+        <div class="row"><label for="c1">Covers terrain</label><input type="range" id="c1" min="70" max="100" step="0.5" value="100"><span class="val" id="c1v"></span></div>
+        <label class="chk"><input type="checkbox" id="j1"> Known spacecraft jitter</label>
+        <div class="out"><div><b id="g1"></b><span>native grid (m)</span></div><div><b id="m1"></b><span>sideways shift (m)</span></div><div><b id="s1"></b><span>score E (m)</span></div></div>
+      </div>
+    </div>
+    <div class="verdict" id="verdict" aria-live="polite"></div>
+    <div class="chart">
+      <svg id="plot" viewBox="0 0 660 270" role="img" aria-label="Score E against emission angle for each grid"></svg>
+      <div class="legend"><span><i style="background:var(--glow)"></i>0.25 m grid (bin 1)</span><span><i style="background:var(--dust)"></i>0.5 m grid (bin 2)</span><span><i style="background:var(--muted)"></i>1.0 m grid (bin 4)</span><span>Circles mark the two images</span></div>
+    </div>
+    <p class="small muted" style="padding:0 20px 18px;margin:0" id="calcNote"></p>
+  </div>
+  <p class="prose small muted">The full method, its seven steps and the papers behind each one: <a href="docs/interactive/HiRISE_Ortho_Selection.html">HiRISE Ortho Selection</a>. The thresholds (1 point coverage tolerance, 5 % tie band, Δz values) are this pipeline's synthesis, not published HiROC thresholds.</p>
+</section>
+<section class="sec" id="mesh">
+  <div class="sec-head plain">
+    <h2><span class="no">B</span>The triangle budget</h2>
+    <p>The mesh is a regular grid: one vertex per sampled DTM post, one quad per square of four valid posts, split into two triangles. A 1 m HiRISE DTM is typically a few thousand posts wide and tens of thousands tall, so the pipeline keeps every <i>s</i>-th post on both axes (the downsampling factor). AUTO picks the smallest <i>s</i> whose exact triangle count fits the budget B = 10,000,000.</p>
+  </div>
+  <pre class="formula wrap">T_full = 2 (H − 1)(W − 1)      s = ⌈ √( T_full / B ) ⌉,  while T(s) &gt; B: s ← s + 1</pre>
+  <div class="tool">
+    <div class="tool-h"><h3>Triangle budget</h3><span>Same formula as compute_downsample(); counts assume every post is valid</span></div>
+    <div class="tool-b" style="display:grid;gap:16px">
+      <div class="row"><label>Terrain size</label>
+        <input type="number" id="bH" value="7291" min="10" step="1" aria-label="rows" style="width:7em"> × <input type="number" id="bW" value="5172" min="10" step="1" aria-label="columns" style="width:7em"> <span class="muted small">posts (the full Gully Monitoring DTM)</span>
+        <select id="bPost" aria-label="Post spacing"><option value="1">1 m posts</option><option value="2">2 m posts</option></select></div>
+      <div class="row"><label for="bS">Factor s</label><input type="range" id="bS" min="0" max="16" step="1" value="0"><span class="val" id="bSv"></span></div>
+      <div class="kpis">
+        <div><b id="kT"></b><span>triangles</span></div>
+        <div><b id="kV"></b><span>vertices</span></div>
+        <div><b id="kP"></b><span>effective post spacing</span></div>
+        <div><b id="kR"></b><span>of full resolution kept</span></div>
+                        <div><b id="kF"></b><span>footprint</span></div>
+        <div><b id="kX"></b><span>ground per texture pixel at 8192 px</span></div>
+      </div>
+      <div class="bars" id="bars"></div>
+      <div class="callout" id="bVerdict"></div>
+    </div>
+  </div>
+</section>
+<section class="sec" id="outputs">
+  <div class="sec-head plain">
+    <h2><span class="no">C</span>Outputs</h2>
+    <p>Folder layout of a processed project, the mesh coordinate conventions, and how to open the results in other software (Pipeline User Manual, Chapter 6).</p>
+  </div>
+  <div class="split wide" style="align-items:start">
+<pre>&lt;project&gt;/
+  GeoTIF/          &lt;id&gt;.TIF from DTM/&lt;id&gt;.IMG
+  MESH/            &lt;id&gt;_Mesh01.obj, &lt;id&gt;_Material_01.mtl,
+                   &lt;id&gt;_Texture01.png|jpg
+                   &lt;id&gt;_Mesh01.ply / .fbx / .glb / .usdz
+                   &lt;id&gt;_TEXTURE_LINK.txt
+  JP2_CONVERTED/   PNG or JPG transcode of the selected ORTHO JP2
+                   ORTHO_SELECTION.csv (every candidate and the decision)
+  Report/          &lt;id&gt;_Technical_Report01.html, 02.pdf, 03.tex
+  DATA/            XLSX / CSV planetary-science exports
+  EXTRAS/          caches, e.g. PDS_INDEX_ROWS.json
+  Twinmotion/      staging folder created for XR delivery</pre>
+    <div class="tool"><div class="tool-b tbl"><table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead><tbody>
+      <tr><td>Units</td><td>1 mesh unit = 1 projected map metre</td></tr>
+      <tr><td>Origin</td><td>A projected point recorded in DATA (Mesh origin); (0, 0) in every 3D file</td></tr>
+      <tr><td>Up axis</td><td>OBJ and PLY: Z-up. FBX, GLB and USDZ: Y-up</td></tr>
+      <tr><td>Vertical exaggeration</td><td>1.0 (true scale) unless changed on the command line</td></tr>
+      <tr><td>FBX scale</td><td>UnitScaleFactor 100 (FBX counts in centimetres; mesh is in metres)</td></tr>
+      <tr><td>Texture</td><td>OBJ: separate PNG/JPG next to the MTL. GLB and USDZ: embedded</td></tr></tbody></table></div></div>
+  </div>
+  <div class="tool"><div class="tool-h"><h3>Opening the meshes in other software</h3><span>Section 6.3</span></div><div class="tool-b tbl"><table>
+    <thead><tr><th>Application</th><th>File</th><th>How</th></tr></thead><tbody>
+    <tr><td>Blender</td><td>OBJ</td><td>File &gt; Import &gt; Wavefront (.obj). Set Up Axis = Z and Forward Axis = Y (the defaults, Forward -Z / Up Y, would tip the terrain on its side).</td></tr>
+    <tr><td>Blender / Twinmotion</td><td>GLB</td><td>Drag and drop. The orthomosaic is embedded and applied on import.</td></tr>
+    <tr><td>Unity / Unreal / Maya</td><td>FBX</td><td>Import as a static mesh; assign the texture from MESH/ if the engine does not pick it up.</td></tr>
+    <tr><td>MeshLab / CloudCompare</td><td>PLY</td><td>Open directly; UVs are stored as s,t.</td></tr>
+    <tr><td>Apple Vision Pro</td><td>USDZ</td><td>Copy to the Files app (AirDrop, iCloud Drive). Tap the file; Quick Look opens it in 3D.</td></tr></tbody></table></div></div>
+  <div class="callout warn"><b>Keep the three files together</b>The OBJ, MTL and texture must stay in the same folder with their original names. Moving or renaming any one of them breaks the texture link and the mesh appears flat white. If you need a single portable file, export GLB or USDZ.</div>
+  <p class="small muted prose">Equirectangular HiRISE DTMs are true to scale only at the projection's centre latitude. Mesh X/Y stay in projected map metres; the reports and DATA tables convert slopes, areas and roughness to ground metres with the scale factor k = cos(φ₁)/cos(φ) (Snyder, 1987).</p>
+</section>
+<section class="sec" id="pipeline">
+  <div class="sec-head plain">
+    <h2><span class="no">D</span>RUN.bat, screen by screen</h2>
+    <p>The HiRISE 3D Topographic Reconstruction Pipeline (obj_pipeline v6.3.9) is run from a five-question Windows wizard that processes one project or a whole dataset, writes OBJ, PLY, FBX, GLB and USDZ, and adds technical reports and data tables.</p>
+  </div>
+  <div class="tool">
+    <div class="tool-h"><h3>RUN.bat, screen by screen</h3><span>A dataset folder holding 15 projects</span></div>
+    <div class="tool-b gallery">
+      <div><figure><img id="wzImg" src="docs/img/pl_fig01_step1_path.jpg" alt=""><figcaption id="wzCap"></figcaption></figure>
+        <div class="navbtns"><button type="button" id="wzPrev">Previous</button><span class="pos" id="wzPos"></span><button type="button" id="wzNext">Next</button></div></div>
+      <ol class="steplist" id="wzList"></ol>
+    </div>
+  </div>
+  <div class="split">
+    <div class="tool"><div class="tool-h"><h3>Wizard answers for common jobs</h3></div><div class="tool-b tbl"><table>
+      <thead><tr><th>Job</th><th>Step 2</th><th>Step 4</th><th>Step 5</th><th>Menus</th></tr></thead><tbody>
+      <tr><td>Quick look</td><td>8</td><td>1</td><td>n, n</td><td>OBJ, JPG</td></tr>
+      <tr><td>Twinmotion delivery</td><td>Enter</td><td>1</td><td>n, n</td><td>GLB, JPG</td></tr>
+      <tr><td>Apple Vision Pro</td><td>Enter</td><td>2</td><td>as needed</td><td>none</td></tr>
+      <tr><td>Full science package</td><td>Enter</td><td>3</td><td>Enter, Enter</td><td>none</td></tr>
+      <tr><td>.IMG to GeoTIFF only</td><td>Enter</td><td>4</td><td>skipped</td><td>none</td></tr></tbody></table></div></div>
+    <div class="tool"><div class="tool-h"><h3>Seven stages per project</h3></div><div class="tool-b tbl"><table><tbody>
+      <tr><td>0</td><td>Each DTM .IMG becomes a lossless GeoTIFF</td></tr>
+      <tr><td>1</td><td>GDAL reads the terrain, its georeferencing and centre</td></tr>
+      <tr><td>2</td><td>Elevation statistics; empty cells removed</td></tr>
+      <tr><td>3</td><td>Downsampled mesh at vertical exaggeration 1.0</td></tr>
+      <tr><td>4</td><td>Chosen ortho to PNG or JPG; UVs from its georeferencing</td></tr>
+      <tr><td>5</td><td>OBJ, PLY, FBX, GLB, USDZ; texture links verified</td></tr>
+      <tr><td>6</td><td>Reports in HTML, PDF, LaTeX; tables in XLSX, CSV</td></tr></tbody></table></div></div>
+  </div>
+  <p class="prose small muted">Every stage, module, formula and dependency is explained in the interactive <a href="docs/interactive/HiRISE_Pipeline_Anatomy.html">HiRISE Pipeline Anatomy</a>; operation is covered in the <a href="docs/manuals/HiRISE_Pipeline_User_Manual.pdf">Pipeline User Manual</a>.</p>
+</section>
+<section class="sec" id="frontend">
+  <div class="sec-head plain">
+    <h2><span class="no">E</span>The front end, in detail</h2>
+    <p>Everything an operator sees and types, from installation to the last line of the console, summarised from the <a href="docs/manuals/HiRISE_Pipeline_User_Manual.pdf">Pipeline User Manual</a> (v6.3.9).</p>
+  </div>
+  <h3 style="margin:8px 0 4px">Step through RUN.bat</h3>
+  <p class="small muted">The five questions, two menus and console blocks with the Gully Monitoring DTM; each parameter is explained on the right.</p>
+  <div class="tool wz">
+    <div class="wz-grid">
+      <div class="wz-left">
+        <div class="wz-bar"><i></i><i></i><i></i><span>RUN.bat</span></div>
+        <div class="wz-term" id="wzTerm" aria-live="polite" role="log"></div>
+        <div class="wz-opts" id="wzOpts"></div>
+      </div>
+      <div class="wz-side">
+        <div id="wzSide"></div>
+        <button type="button" class="btn line" id="wzRestart" hidden>Start again</button>
+      </div>
+    </div>
+  </div>
+  
+  <div class="faq wide">
+    <details open><summary>1. Install once: SETUP.bat</summary>
+      <p>Copy the HiRISE_Pipeline folder to the computer (code only, never a conda environment), double-click <code>SETUP.bat</code> and press Enter at each question. About 400 MB is downloaded the first time; no admin rights are needed. Afterwards, RUN.bat is all you use.</p>
+      <div class="tbl"><table><thead><tr><th>Setup step</th><th>What happens</th></tr></thead><tbody>
+        <tr><td>1 Miniforge</td><td>Uses an existing conda, or downloads Miniforge, checks its SHA-256 and installs it for your user only</td></tr>
+        <tr><td>2 Environment</td><td>Creates <code>hirise-pipeline</code> from an exact lock file (117 packages with checksums); falls back to environment.yml</td></tr>
+        <tr><td>3 Command</td><td>Optional <code>pip install -e .</code>, which adds a <code>hirise-pipeline</code> command</td></tr>
+        <tr><td>4 RUN.bat link</td><td>Saves <code>HIRISE_PYTHON</code> so RUN.bat always uses this environment</td></tr>
+        <tr><td>5 Versions</td><td><code>tools\check_env.py</code> prints pinned vs installed versions and the JP2OpenJPEG, PDS, GTiff, PNG, JPEG drivers and PROJ</td></tr>
+        <tr><td>6 Tests</td><td>Runs five test suites (smoke, math, ortho selection, GeoTIFF export, emission lookup) and prints PASS or FAIL</td></tr>
+      </tbody></table></div>
+      <p class="small muted">Options: <code>SETUP.bat /yes</code> takes every default, <code>/rebuild</code> rebuilds the environment, <code>/notests</code> skips step 6. Everything is logged to SETUP_LOG.txt. Pinned versions include Python 3.12.15, GDAL 3.13.3 with libgdal-jp2openjpeg, NumPy 1.26.4, ReportLab 5.0.1 and XlsxWriter 3.2.9. On macOS or Linux, create the environment from the matching lock file with conda.</p>
+      <p class="small">RUN.bat then uses the first Python that can import <code>osgeo.gdal</code>: the <code>HIRISE_PYTHON</code> variable, then a <code>hirise-pipeline</code> conda environment, then OSGeo4W, then <code>py -3</code> and <code>python</code>. The one it picked is printed in the RUNNING PIPELINE block.</p>
+    </details>
+
+    <details><summary>2. Prepare the data</summary>
+      <p>Give the wizard one project folder, or a parent folder of many projects (the console then reports <b>Mode: DATASET</b> and runs them one after another).</p>
+<pre>&lt;Project_Name_LLLLE_LLLN&gt;/
+  DTEEC_&lt;obs1&gt;_&lt;obs2&gt;_A01.TIF     DTM GeoTIFF (root, DEM/ or DTM/), or
+  DTM/DTEEC_..._A01.IMG (+ .LBL)   PDS3 DTM, converted in stage 0
+  *_RED_A_01_ORTHO.JP2             orthos (A, B or C grid; RED and IRB)
+  *.LBL                            labels with EMISSION_ANGLE, MRO:BINNING
+  README / *.txt                   producer README
+  JITTER.txt                       optional: observation IDs with known jitter</pre>
+      <p>Only the DTM is required. Folder names carry an approximate location, read with one rule: a 4-digit longitude and a 3-digit latitude, both in tenths of a degree, east-positive. <code>1546E_049S</code> means 154.6° E, 4.9° S; <code>1546E_493S</code> would mean 49.3° S. The authoritative centre always comes from the DTM through GDAL, and Stage 1 warns when the two disagree.</p>
+      <p class="small muted">Emission-angle labels and the manifest are found through <code>HIRISE_EMISSION_LABELS_ROOT</code> and <code>HIRISE_EMISSION_MANIFEST</code>, then a HiRISE_Emission_Labels folder next to the dataset, then <code>C:\Public_Data\HiRISE_Emission_Labels</code> and the same folder on D:, E:, F:.</p>
+    </details>
+
+    <details><summary>3. The five questions</summary>
+      <div class="tbl"><table><thead><tr><th>Step</th><th>Prompt</th><th>Answers</th><th>Default</th></tr></thead><tbody>
+        <tr><td>1</td><td>Project path</td><td>Paste a folder path; quotes are removed. Rejected: empty, a Windows Search result (search-ms:), any URI, a missing folder or a file</td><td>none</td></tr>
+        <tr><td>2</td><td>DTM downsampling</td><td>Enter = AUTO from the 10,000,000-triangle budget; 1 = native (100 % of vertices); 2 = 25 %; 4 = 6.25 %; 8 = 1.56 %; any whole number works; text falls back to AUTO</td><td>AUTO</td></tr>
+        <tr><td>3</td><td>Full precision? [y/N]</td><td>N = compact (vertices to 4 decimals, UVs to 6, no normals); y = 9 decimals plus normals, 3 to 4 times larger</td><td>N</td></tr>
+        <tr><td>4</td><td>Output mode</td><td>1 Standard (two menus follow); 2 Apple Vision Pro (one USDZ with the native PNG texture); 3 All formats with PNG; 4 GeoTIFF only (skips step 5)</td><td>1</td></tr>
+        <tr><td>5</td><td>Reports? Data tables?</td><td>Enter = yes, n = no. Meshes are always written. Typical run on the 12.5 M-post benchmark: about 17 s with neither, 26 s with both</td><td>yes / yes</td></tr>
+      </tbody></table></div>
+      <div class="split" style="margin-top:14px">
+        <div class="tbl"><table><thead><tr><th>Format menu</th><th>Best for</th></tr></thead><tbody>
+          <tr><td>1 OBJ (+ MTL + texture)</td><td>Blender, GIS, universal exchange</td></tr>
+          <tr><td>2 PLY, binary</td><td>MeshLab, CloudCompare</td></tr>
+          <tr><td>3 FBX 7.4</td><td>Unity, Unreal, Maya</td></tr>
+          <tr><td>4 GLB, texture embedded</td><td>Twinmotion, Blender, WebXR</td></tr>
+          <tr><td>5 USDZ, texture embedded</td><td>Apple Vision Pro, AR Quick Look</td></tr>
+          <tr><td>6 ALL</td><td>Archival, multi-platform delivery</td></tr></tbody></table></div>
+        <div class="tbl"><table><thead><tr><th>Texture menu</th><th>Use</th></tr></thead><tbody>
+          <tr><td>1 PNG, lossless, native grid</td><td>Photometric inspection, archival</td></tr>
+          <tr><td>2 JPG, quality 95, 4:4:4, about 10× smaller</td><td>VR and Twinmotion delivery</td></tr></tbody></table>
+          <p class="small muted" style="margin-top:8px">JPG cannot store an axis longer than 65,500 px, so a longer ortho is Lanczos-resampled; PNG keeps the native grid. Both menus accept only the listed numbers, and Ctrl+C cancels cleanly.</p></div>
+      </div>
+      <div class="callout warn"><b>The wizard always overwrites</b>RUN.bat passes <code>--overwrite</code>, so existing meshes and reports are replaced (GeoTIFFs only with <code>--geotiff-overwrite</code>). Use the command line to keep earlier outputs.</div>
+    </details>
+
+    <details><summary>4. Reading the console</summary>
+      <div class="tbl"><table><thead><tr><th>Block</th><th>What to read in it</th></tr></thead><tbody>
+        <tr><td>RUNNING PIPELINE</td><td>The Python that will run, the input path, the downsampling factor, reports and data choices. Check it before walking away</td></tr>
+        <tr><td>PIPELINE CONFIGURATION</td><td>Error log path, timestamp, input root, triangle budget, vertical exaggeration (always 1.0×), OBJ precision, texture encoding</td></tr>
+        <tr><td>EMISSION MANIFEST</td><td>Where the manifest was found and how many entries it loaded</td></tr>
+        <tr><td>PROJECT DISCOVERY</td><td>Single project or dataset; one line per project with its DTM. Folders named ortho, texture, browse, rgb, color, thumbnail or quicklook are skipped on purpose</td></tr>
+        <tr><td>OUTPUT DIRECTORIES, STAGE 0</td><td>The MESH, JP2_CONVERTED, Report and Twinmotion folders; .IMG files converted or already done</td></tr>
+        <tr><td>ORTHO SELECTION</td><td>JP2 inventory by band and grid, one row per candidate with grid, role, emission angle, coverage and score E, then SELECTED and FINAL TEXTURE</td></tr>
+        <tr><td>STAGES 1 to 4</td><td>Raster size and post spacing, projection, GDAL centre and the folder-label check; valid fraction (about 0.75 is normal for a slanted strip) and elevation range; downsampling, triangles, retention; texture written and its emission angle</td></tr>
+        <tr><td>STAGE 5, STAGE 6, COMPLETE</td><td>Every file with its size and the OBJ to MTL to texture check; reports and tables or "skipped"; per-stage times and ALL STAGES NOMINAL</td></tr>
+        <tr><td>PIPELINE COMPLETE</td><td>Projects run, elapsed time (15 projects in 63.1 s in the test run) and the error log path</td></tr>
+      </tbody></table></div>
+      <div class="tbl" style="margin-top:12px"><table><thead><tr><th>Ortho role</th><th>Meaning</th></tr></thead><tbody>
+        <tr><td>native</td><td>On its image's native grid; eligible to win</td></tr>
+        <tr><td>backup</td><td>Usable but coarser, unrecognised grid, or more than 1 point below the best coverage; tried only if every native candidate fails</td></tr>
+        <tr><td>rejected</td><td>IRB colour product, unreadable or blank, or a finer grid that only interpolates</td></tr></tbody></table></div>
+    </details>
+
+    <details><summary>5. After every run: a 30-second check</summary>
+      <ol>
+        <li>Scroll the console for any warning symbol and read the line beside it.</li>
+        <li>Open <code>pipeline_errors_&lt;timestamp&gt;.log</code> in the input folder; an almost empty log is a good sign.</li>
+        <li>Open one MESH folder: mesh, MTL and texture should all be there with sensible sizes.</li>
+        <li>Open <code>JP2_CONVERTED\ORTHO_SELECTION.csv</code> to see why a texture was chosen.</li>
+        <li>Load one mesh in the target application.</li>
+      </ol>
+    </details>
+  </div>
+</section>
+<section class="sec" id="cli">
+  <div class="sec-head plain">
+    <h2><span class="no">F</span>Command line, reports and verification</h2>
+    <p>Everything the wizard does can be scripted, every run can write three technical reports and a set of data tables, and a set of tools checks the installation and the outputs against independent sources. Summarised from the <a href="docs/manuals/HiRISE_Pipeline_User_Manual.pdf">Pipeline User Manual</a> (v6.3.9), Chapters 6, 7 and 9.</p>
+  </div>
+  <div class="tool"><div class="tool-h"><h3>Three ways to start it</h3><span>Section 7.1</span></div><div class="tool-b">
+<pre class="tree">RUN.bat --input "D:\Public_Data\TEST" --formats usdz --ortho-format png
+python -m obj_pipeline --input &lt;folder&gt; [flags]     (from HiRISE_Pipeline)
+hirise-pipeline --input &lt;folder&gt; [flags]           (after pip install -e .)</pre>
+    <p class="small muted" style="margin:10px 0 0">Any argument given to RUN.bat skips the wizard and goes straight to the pipeline. If <code>--formats</code> or <code>--ortho-format</code> is left out, the pipeline shows that menu; in scripts (with <code>--formats</code>) a missing <code>--reports</code> or <code>--data</code> simply means yes.</p>
+  </div></div>
+  <div class="tool"><div class="tool-h"><h3>Flags</h3><span>Section 7.2</span></div><div class="tool-b tbl"><table>
+    <thead><tr><th>Flag</th><th>Default</th><th>Meaning</th></tr></thead><tbody>
+    <tr><td class="m">--input PATH</td><td>required</td><td>Single project folder or a parent of project folders</td></tr>
+    <tr><td class="m">--formats F [F ...]</td><td>menu</td><td>obj, ply, fbx, glb, usdz (aliases applevision, vision, visionpro) or all</td></tr>
+    <tr><td class="m">--ortho-format png|jpg</td><td>menu</td><td>Texture encoding: PNG lossless or JPG about 10&times; smaller</td></tr>
+    <tr><td class="m">--downsample N</td><td>auto</td><td>Keep every N-th DTM post on both axes; omit to fit the triangle budget</td></tr>
+    <tr><td class="m">--tri-budget N</td><td>10,000,000</td><td>Triangle budget for the automatic downsampling factor</td></tr>
+    <tr><td class="m">--vertical-exaggeration X</td><td>1.0</td><td>Keep at 1.0 for true scale</td></tr>
+    <tr><td class="m">--overwrite</td><td>off</td><td>Replace existing meshes and reports</td></tr>
+    <tr><td class="m">--reports yes|no, --no-reports</td><td>yes</td><td>Technical reports in Report/</td></tr>
+    <tr><td class="m">--data yes|no, --no-data</td><td>yes</td><td>Data tables in DATA/</td></tr>
+    <tr><td class="m">--geotiff yes|no</td><td>yes</td><td>Convert each DTM .IMG to GeoTIFF first and read the DTM from it</td></tr>
+    <tr><td class="m">--geotiff-only</td><td>off</td><td>Only convert DTM .IMG files to GeoTIFF for the whole input</td></tr>
+    <tr><td class="m">--geotiff-validate-only</td><td>off</td><td>Only print the COMPLETE / PARTIAL / EMPTY report</td></tr>
+    <tr><td class="m">--geotiff-workers N</td><td>0 (half the cores)</td><td>Parallel GeoTIFF conversions</td></tr>
+    <tr><td class="m">--geotiff-overwrite</td><td>off</td><td>Rewrite existing GeoTIFFs</td></tr>
+    <tr><td class="m">--jitter-obs ID [ID ...]</td><td>none</td><td>Observations with known jitter; their orthos are a last resort</td></tr>
+    <tr><td class="m">--jobs N</td><td>0 (auto)</td><td>Mesh formats written at the same time; 0 = one per core (max 4); 1 = lowest memory</td></tr>
+    <tr><td class="m">--full-precision</td><td>off</td><td>9-decimal vertices and UVs instead of the compact 4 and 6</td></tr>
+    <tr><td class="m">--write-normals</td><td>off</td><td>Write vn lines in the OBJ</td></tr>
+    <tr><td class="m">--offline</td><td>off</td><td>Do not contact the PDS server for the RDR index; local RDRCUMINDEX.TAB and cached EXTRAS/PDS_INDEX_ROWS.json are still used</td></tr>
+  </tbody></table></div></div>
+  <div class="tool"><div class="tool-h"><h3>Recipes</h3><span>Section 7.3</span></div><div class="tool-b tbl"><table>
+    <thead><tr><th>Goal</th><th>Command</th></tr></thead><tbody>
+    <tr><td>Everything, lossless, overwrite</td><td class="m">python -m obj_pipeline --input "D:\Public_Data\TEST" --formats all --ortho-format png --overwrite</td></tr>
+    <tr><td>Apple Vision Pro only</td><td class="m">python -m obj_pipeline --input "D:\HiRISE\DTEEC_..." --formats usdz --ortho-format png</td></tr>
+    <tr><td>Fast preview mesh</td><td class="m">python -m obj_pipeline --input "D:\HiRISE\DTEEC_..." --formats obj --ortho-format jpg --downsample 8</td></tr>
+    <tr><td>Meshes only (fastest)</td><td class="m">python -m obj_pipeline --input "D:\HiRISE\DTEEC_..." --formats all --ortho-format png --no-reports --no-data</td></tr>
+    <tr><td>Tables but no reports</td><td class="m">python -m obj_pipeline --input "D:\HiRISE\DTEEC_..." --formats glb --ortho-format png --reports no --data yes</td></tr>
+    <tr><td>Two formats, keep old outputs</td><td class="m">python -m obj_pipeline --input "D:\HiRISE\DTEEC_..." --formats obj glb --ortho-format jpg</td></tr>
+    <tr><td>Low-memory computer</td><td class="m">python -m obj_pipeline --input "D:\Public_Data\TEST" --formats all --ortho-format jpg --jobs 1 --downsample 4</td></tr>
+    <tr><td>No network</td><td class="m">python -m obj_pipeline --input "D:\Public_Data\TEST" --formats obj --ortho-format png --offline</td></tr>
+  </tbody></table></div></div>
+
+  <h3 class="subh">Technical reports (Report/)</h3>
+  <p class="prose">Each project gets the same technical report three ways: an interactive HTML page, a PDF and a LaTeX source. They cover the stereo pair and photogrammetric quality, DTM statistics, terrain spectra and roughness, geologic context, the EDL (landing) terrain check and the references. Every value is measured from the data, derived by a stated formula, or labelled as a model or pipeline choice; missing inputs are shown as N/A, never estimated.</p>
+  <div class="tool"><div class="tool-h"><h3>Key quantities in the reports</h3><span>Section 6.4</span></div><div class="tool-b tbl"><table>
+    <thead><tr><th>Quantity</th><th>What it means</th><th>Source</th></tr></thead><tbody>
+    <tr><td class="m">EP = 0.2 px &times; GSD / (B/H)</td><td>Expected vertical precision of the DTM</td><td>Kirk et al. 2003; Sutton et al. 2022</td></tr>
+    <tr><td>README Total RMS (px)</td><td>Bundle-adjustment image residual: below 0.5 good, up to 0.7 acceptable</td><td>Sutton et al. 2022</td></tr>
+    <tr><td>README RMS x, y, z (m)</td><td>Residual of the tie to MOLA, not precision (X, Y up to 100 m; Z up to 5 m)</td><td>Sutton et al. 2022</td></tr>
+    <tr><td>Convergence angle</td><td>15&deg; to 30&deg; acceptable; 5&deg; to 15&deg; and 30&deg; to 45&deg; warning (pipeline bands)</td><td>Sutton et al. 2022</td></tr>
+    <tr><td>EDL slope and relief</td><td>Measured at 2 to 5 m and 10 to 1000 m baselines against the MSL limits</td><td>Golombek et al. 2012</td></tr>
+    <tr><td>Geologic unit, epoch, age</td><td>From the SIM 3292 global geologic map polygons</td><td>Tanaka et al. 2014</td></tr>
+  </tbody></table></div></div>
+  <div class="tool"><div class="tool-h"><h3>Data tables (DATA/)</h3><span>Section 6.5</span></div><div class="tool-b">
+<pre class="tree">DATA/
+  BY_PLANETARY_SCIENTIST/
+    SARAH_SUTTON/        stereo pair, photogrammetric quality, instrument
+    MATTHEW_CHOJNACKI/   geology, aeolian, EDL hazard, morphology
+    RAY_OLGUIN/          pipeline parameters, mesh stats, XR, performance
+  PLANETARY_DATA/
+    GIS_DATA/            CRS, RASTER_PARAMETERS, SPATIAL_EXTENTS
+    PLANETARY_GEOLOGY/   classification, topography, TERRAIN_SPECTRA
+    PLANETARY_SCIENCE/   orbital mechanics, atmosphere, Mars global context
+    PROJECT_DATA/        acquisition metadata, processing record
+    POINTCLOUD/          MESH_VERTICES.csv/.xlsx, DTM_KPI.csv/.xlsx</pre>
+    <p class="small muted" style="margin:10px 0 0">Every geospatial value comes from one place: the DTM's GeoTransform and CRS read by GDAL, converted to longitude and latitude with OSR in the DTM's own Mars CRS. MESH_VERTICES holds exactly the mesh's vertices (row, col, lon, lat, elevation, projected X/Y and mesh X/Y) with the same NoData mask.</p>
+  </div></div>
+
+  <h3 class="subh">Verification tools and tests</h3>
+  <div class="tool"><div class="tool-h"><h3>Tools</h3><span>Chapter 9, run from the HiRISE_Pipeline folder</span></div><div class="tool-b tbl"><table>
+    <thead><tr><th>Tool</th><th>Command</th><th>What it checks</th></tr></thead><tbody>
+    <tr><td>check_env</td><td class="m">python tools\check_env.py</td><td>Installed against pinned versions; JP2, PNG and JPEG drivers; PROJ database</td></tr>
+    <tr><td>verify_pipeline</td><td class="m">python tools\verify_pipeline.py &lt;project&gt;</td><td>PASS or FAIL for GDAL, imports, ortho selection, lon/lat, configuration</td></tr>
+    <tr><td>validate_against_pds</td><td class="m">python tools\validate_against_pds.py &lt;project&gt;</td><td>After a run, compares outputs with label values, RDR SIS projection equations, gdaldem slope, exact spherical areas and Ls; exit code 1 on any FAIL</td></tr>
+    <tr><td>audit_data_export</td><td class="m">python tools\audit_data_export.py &lt;project or dataset&gt;</td><td>Lists empty DATA rows and re-checks GeoTransform, bounds, centre and point cloud against GDAL</td></tr>
+    <tr><td>inspect_glb</td><td class="m">python tools\inspect_glb.py &lt;file.glb&gt;</td><td>Texture embedded, UVs and indices valid</td></tr>
+    <tr><td>run_ortho_selection</td><td class="m">python tools\run_ortho_selection.py</td><td>Batch ortho selection against the manifest; writes ortho_selection_report.csv</td></tr>
+    <tr><td>validate_geologic_map</td><td class="m">python tools\validate_geologic_map.py N</td><td>N random points against the USGS SIM 3292 geodatabase (set SIM3292_GDB)</td></tr>
+    <tr><td>benchmark</td><td class="m">python tools\benchmark.py</td><td>Wall time, peak memory and time per stage on your computer</td></tr>
+  </tbody></table>
+  <p class="small muted" style="margin:10px 0 0">Five test suites (smoke, math, ortho selection, GeoTIFF export, emission lookup) run during SETUP.bat; test_math alone runs 52 checks of the formulas against closed-form answers.</p></div></div>
+</section>
+
+<section class="sec" id="anatomy">
+  <div class="sec-head plain">
+    <h2><span class="no">G</span>Inside the pipeline</h2>
+    <p>How the code is organised and how it turns DTM pixels into Mars coordinates, stereo precision and an 8-bit texture. Summarised from the <a href="docs/interactive/HiRISE_Pipeline_Anatomy.html">HiRISE Pipeline Anatomy</a>.</p>
+  </div>
+  <div class="split">
+    <div class="tool"><div class="tool-h"><h3>Six layers, imports only flow down</h3><span>rank, highest first</span></div><div class="tool-b tbl"><table>
+      <thead><tr><th>Rank</th><th>Layer</th></tr></thead><tbody>
+      <tr><td>5</td><td class="m">cli.py</td></tr><tr><td>4</td><td class="m">pipeline.py</td></tr><tr><td>3</td><td class="m">reports/</td></tr>
+      <tr><td>2</td><td class="m">science/, exporters/</td></tr><tr><td>1</td><td class="m">ingest/, geometry/</td></tr><tr><td>0</td><td class="m">core/</td></tr></tbody></table>
+      <p class="small muted" style="margin:10px 0 0">Each folder may import only from layers with a lower rank; exporters/ and science/ import nothing from the package, and core/ imports nothing at all. The automated test test_layers_only_import_downward fails if the rule is broken.</p></div></div>
+    <div class="tool"><div class="tool-h"><h3>Coordinates, in order of trust</h3><span>ingest/coordinates.py</span></div><div class="tool-b tbl"><table>
+      <thead><tr><th>Priority</th><th>Source</th><th>How</th></tr></thead><tbody>
+      <tr><td>1</td><td>DTM raster</td><td>GDAL GeoTransform and centre pixel in the DTM's own Mars datum (OSR), then the centre and four corners in degrees</td></tr>
+      <tr><td>2</td><td>Selected ORTHO JP2</td><td>Same procedure, if the DTM has no usable CRS</td></tr>
+      <tr><td>3</td><td>gdalinfo -json</td><td>Last-resort metadata read</td></tr>
+      <tr><td>ref</td><td>Folder name label</td><td>Only for comparison; the report shows |GDAL &minus; folder|</td></tr></tbody></table></div></div>
+  </div>
+  <div class="split" style="margin-top:26px">
+    <div class="tool"><div class="tool-h"><h3>Stereo precision, and what is really measured</h3><span>science/stereo_geometry.py</span></div><div class="tool-b">
+      <p class="small" style="margin:0 0 8px">The pipeline reads each image's emission angle from its PDS label and the bundle-adjustment residual (Total RMS, in pixels) from the DTM README, then derives the convergence angle, the base-to-height ratio B/H and the expected vertical precision:</p>
+      <pre class="formula">EP = 0.2 px &times; GSD / (B/H)</pre>
+      <p class="small muted" style="margin:8px 0 0">Grades: convergence good from 15&deg; to 30&deg; (Sutton et al. 2022), warning from 5&deg; to 15&deg; or 30&deg; to 45&deg;, critical below 5&deg; (pipeline bands); EP good up to 1 m, warning up to 2 m; Total RMS good below 0.5 px, acceptable up to 0.7 px (Sutton et al. 2022). The README RMS x, y and z are residuals of the tie to MOLA, not the precision of the DTM.</p></div></div>
+    <div class="tool"><div class="tool-h"><h3>16-bit to 8-bit texture</h3><span>3D engines need 8-bit textures</span></div><div class="tool-b">
+      <p class="small" style="margin:0">When the JP2 is not already 8-bit, the converter takes the 2nd and 98th percentiles of a preview of about 512 px (ignoring zeros and NoData), pads that range by 5 % on each side, and maps it linearly to 0 to 255. PNG keeps the native grid; JPG uses quality 95, progressive, 4:4:4 chroma and keeps the same grid unless an axis exceeds the 65,500 px JPEG limit. Results are cached in JP2_CONVERTED/.</p></div></div>
+  </div>
+</section>
+
+<section class="sec" id="twinmotion">
+  <div class="sec-head plain">
+    <h2><span class="no">H</span>Twinmotion VR, in detail</h2>
+    <p>From the site folder to the VR headset with Twinmotion 2025.2 and a Meta Quest over Meta Horizon Link, summarised from the <a href="docs/manuals/Twinmotion_VR_User_Manual.pdf">Twinmotion VR User Manual</a>.</p>
+  </div>
+  <h3 style="margin:0 0 10px">Site folder</h3>
+  <div class="split wide">
+    <div class="tool"><div class="tool-b tbl"><table>
+      <thead><tr><th>File</th><th>What it is</th><th>Used for in Twinmotion</th></tr></thead><tbody>
+      <tr><td class="m">*_Mesh01.obj</td><td>Triangulated terrain built from the HiRISE DTM, with UV coordinates</td><td>The geometry you walk on</td></tr>
+      <tr><td class="m">*_Material_01.mtl</td><td>Material description that names the texture file</td><td>Lets Twinmotion apply the ortho automatically on import</td></tr>
+      <tr><td class="m">*_Texture01.jpg</td><td>HiRISE orthoimage, draped 1:1 on the mesh UVs</td><td>The surface colour and detail</td></tr></tbody></table></div></div>
+    <div class="callout warn"><b>Rules that prevent most problems</b>Never rename or move the OBJ, MTL or JPG on their own; the MTL finds the texture by file name. Copy the whole site folder, not single files, when you move data to another computer. Keep paths short: deep OneDrive paths can exceed Windows path limits.</div>
+  </div>
+
+  <div class="tool"><div class="tool-h"><h3>Requirements</h3><span>Twinmotion VR User Manual, Section 1.2</span></div><div class="tool-b tbl"><table>
+    <thead><tr><th>Item</th><th>Requirement</th><th>Notes</th></tr></thead><tbody>
+    <tr><td>Computer</td><td>Windows PC with a dedicated NVIDIA GPU</td><td>VR rendering is GPU bound; close other heavy apps first</td></tr>
+    <tr><td>Twinmotion</td><td>Version 2025.2, installed from the Epic Games Launcher</td><td>Free Epic Games account required</td></tr>
+    <tr><td>Headset</td><td>Meta Quest 1, 2 or 3 (tested by Epic)</td><td>Other tested headsets: HTC VIVE Pro / Pro 2 / Cosmos / XR Elite, HP Reverb G2, Varjo, Windows MR</td></tr>
+    <tr><td>Headset link</td><td>Meta Horizon Link desktop app + Link cable or Air Link</td><td>Unknown sources must be turned on first</td></tr>
+    <tr><td>Terrain data</td><td>One site folder</td><td>Produced by the HiRISE 3D Reconstruction Pipeline</td></tr>
+  </tbody></table></div></div>
+  <div class="split">
+    <div class="tool"><div class="tool-h"><h3>Recommended import settings</h3><span>Section 4.1</span></div><div class="tool-b tbl"><table>
+      <thead><tr><th>Option</th><th>Setting</th><th>Why</th></tr></thead><tbody>
+      <tr><td>Collapse</td><td>Collapse all</td><td>The terrain is one surface; one pivot is easier to move and scale</td></tr>
+      <tr><td>Up axis</td><td>Auto first; Z up or Y up if the terrain stands on its edge</td><td>OBJ files carry no orientation tag</td></tr>
+      <tr><td>Unit conversion</td><td>Auto first; untick and enter a factor only if the size is wrong</td><td>OBJ files carry no unit tag</td></tr>
+      <tr><td>Full precision UVs</td><td>On</td><td>Keeps the ortho pixel-aligned on large meshes</td></tr>
+      <tr><td>Full precision normals</td><td>On</td><td>Cleaner shading on slopes and crater walls</td></tr>
+      <tr><td>Enable Nanite</td><td>Optional, On for dense meshes</td><td>Lets Twinmotion stream very high triangle counts</td></tr></tbody></table></div></div>
+    <div class="tool"><div class="tool-h"><h3>Material values to leave untouched</h3><span>Section 5.2</span></div><div class="tool-b tbl"><table>
+      <thead><tr><th>Setting</th><th>Value</th></tr></thead><tbody>
+      <tr><td>Tint</td><td>White</td></tr><tr><td>Grunge</td><td>0%</td></tr><tr><td>Saturation</td><td>1.0</td></tr><tr><td>Gamma</td><td>1.0</td></tr><tr><td>UV tab</td><td>Scale 1.0, no offset or rotation</td></tr></tbody></table>
+      <p class="small muted" style="margin:12px 0 0">A HiRISE DTM covers a few kilometres across by roughly 10 to 20 km long. Size in the kilometre range is correct; 100 times too small or too large means a unit mismatch: re-import with Unit conversion unticked and the factor set to fix it.</p></div></div>
+  </div>
+<div class="split" style="margin-top:26px">
+    <div class="callout"><b>Start position for VR (Section 6.3)</b>The headset starts where the viewport camera is. Before entering VR, fly the camera to a spot just above an interesting feature, such as a crater rim or dune field, facing it. Switch Travel mode to Walk to keep the viewer on the ground, or to Drone to float freely.</div>
+    <div class="callout warn"><b>Unknown sources: security note (Section 3.1)</b>Unknown sources lets any unreviewed PC VR app run on the headset, not only Twinmotion. Leave it on for lab machines used for this workflow, and install software only from sources you trust, such as the Epic Games Launcher.</div>
+  </div>
+<div class="split" style="margin-top:26px">
+    <div class="tool"><div class="tool-h"><h3>VR controller controls</h3><span>Section 7.2</span></div><div class="tool-b tbl"><table>
+      <thead><tr><th>Controller</th><th>Action</th><th>Result</th></tr></thead><tbody>
+      <tr><td>Dominant hand (default right)</td><td>Press the thumbstick</td><td>Shows or hides the teleport ray</td></tr>
+      <tr><td>Dominant hand</td><td>Aim the ray at the ground and release</td><td>Teleports you to that spot</td></tr>
+      <tr><td>Secondary hand</td><td>Press the thumbstick</td><td>Opens or closes the VR menu (time of day, weather, navigation)</td></tr></tbody></table>
+      <p class="small muted" style="margin:10px 0 0">The dominant hand is set in Preferences &gt; VR &gt; Dominant hand.</p></div></div>
+    <div class="tool"><div class="tool-h"><h3>Xbox gamepad controls</h3><span>Section 7.3</span></div><div class="tool-b">
+      <figure><img src="docs/img/vr_fig13_gamepad.jpg" alt="Gamepad layout in the Twinmotion Navigation panel" loading="lazy"></figure>
+      <div class="tbl" style="margin-top:10px"><table><tbody>
+        <tr><td>Left stick</td><td>Walk or fly forward, back and sideways</td></tr><tr><td>Right stick</td><td>Turn your view</td></tr>
+        <tr><td>X</td><td>Switches between Walk and Fly</td></tr><tr><td>LB / RB</td><td>Rise / descend</td></tr>
+        <tr><td>LT</td><td>Changes the navigation speed level</td></tr><tr><td>RT</td><td>Temporary speed boost; use in short taps only</td></tr>
+        <tr><td>View button</td><td>Saves a screenshot to the desktop</td></tr></tbody></table></div></div></div>
+  </div>
+
+  <h3 style="margin:34px 0 4px">Performance optimization</h3>
+  <p class="small muted">VR needs a steady frame rate at the headset's refresh rate (72 to 120 Hz on Quest). Work down this list until the motion is smooth.</p>
+  <ol class="bigsteps">
+    <li><span class="n">1</span><div><h3>VR dynamic quality</h3><p>Preferences &gt; VR, enable VR dynamic quality and Use VR headset threshold. Twinmotion then lowers quality on its own to hold the frame rate.</p></div></li>
+    <li><span class="n">2</span><div><h3>VR quality settings</h3><p>Lower, in this order: Effects, Post-processing, Shadows, View distance. Leave Textures high so the ortho stays sharp.</p></div></li>
+    <li><span class="n">3</span><div><h3>Nanite</h3><p>Enable Nanite on re-import for very dense meshes.</p></div></li>
+    <li><span class="n">4</span><div><h3>A lighter mesh</h3><p>Re-run the pipeline with a higher downsampling factor. The surface still looks detailed because the ortho carries most of the visible detail.</p></div></li>
+    <li><span class="n">5</span><div><h3>A smaller ortho</h3><p>An ortho of about 8192 px on the long side is a good balance for VR. Downsample larger JPGs before import.</p></div></li>
+    <li><span class="n">6</span><div><h3>The link</h3><p>Use a Link cable instead of Air Link, and close browsers and other GPU-heavy apps. Watch the Stats readout (bottom left of the Twinmotion window) while you test.</p></div></li>
+  </ol>
+</section>
+<section class="sec" id="help">
+  <div class="sec-head plain"><h2><span class="no">I</span>Troubleshooting</h2><p>Type what you see. Pipeline rows are from the Pipeline User Manual, Chapter 10; Twinmotion rows from the Twinmotion VR User Manual, Section 9.</p></div>
+  <div class="row" style="margin:6px 0 14px"><input type="text" id="tsFilter" placeholder="white terrain, tiny, stutter, osgeo ..." aria-label="Filter problems"></div>
+  <div class="tool"><div class="tool-b tbl"><table>
+    <thead><tr><th>Problem</th><th>Likely cause</th><th>Fix</th><th>Where</th></tr></thead>
+    <tbody id="tsBody"></tbody></table></div></div>
+</section>
+<section class="sec" id="glossary">
+  <div class="sec-head plain">
+    <h2><span class="no">J</span>HiRISE glossary</h2>
+    <p>The technical vocabulary used on this site, defined in our own words from the HiRISE instrument, calibration, photogrammetry and science literature. Numbers in brackets point to the references below.</p>
+  </div>
+  <div class="tool">
+    <div class="tool-h"><h3>Find a term</h3><span id="glossCount"></span></div>
+    <div class="tool-b">
+      <input type="text" id="glossFilter" placeholder="Type a term, e.g. TDI, emission angle, orthoimage" style="width:100%">
+      <div class="seg gcats" role="group" id="glossCats" aria-label="Category"></div>
+      <dl class="gloss" id="glossBody"></dl>
+    </div>
+  </div>
+</section>
+
+<section class="sec" id="refs">
+  <div class="sec-head plain"><h2>References</h2><p><span id="refCount">52</span> publications: HiRISE instrument and operations, radiometric calibration, stereo photogrammetry and DTM quality, landing-site engineering, and science results that rely on HiRISE DTMs and orthoimages.</p></div>
+  <ol class="refs prose" id="refList"></ol>
+  <p class="small muted prose">Pipeline screenshots by Raymundo "R@y" Olguin.</p>
+</section>
+</div></main>
+<dialog class="palette" id="palette" aria-label="Search the guide">
+  <input type="text" id="pq" placeholder="Jump to a step, tool or problem" aria-label="Search" autocomplete="off">
+  <ul id="pl" role="listbox"></ul>
+  <div class="hint">Arrow keys to move, Enter to open, Esc to close</div>
+</dialog>
+<script src="assets/vendor/gsap/gsap.min.js"></script>
+<script src="assets/vendor/gsap/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/lenis/lenis.min.js"></script>
+<script src="assets/js/glossary.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/wizard.js"></script>
+<script src="assets/js/ui.js"></script>
+</body>
+</html>

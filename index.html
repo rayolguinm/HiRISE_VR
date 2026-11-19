@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HiRISE in VR: fly over Mars</title>
+<meta name="description" content="Viewing HiRISE terrain meshes and orthoimages in virtual reality: the HiRISE 3D Topographic Reconstruction Pipeline and Twinmotion VR. By Raymundo &quot;R@y&quot; Olguin, HiROC and SIC, LPL, University of Arizona.">
+<meta name="author" content="Raymundo &quot;R@y&quot; Olguin">
+<meta name="theme-color" content="#0B0D12">
+<meta property="og:title" content="HiRISE in VR: fly over Mars">
+<meta property="og:description" content="From a HiRISE stereo DTM to a true-scale, textured mesh in a VR headset.">
+<meta property="og:image" content="docs/img/hero_terrain_render.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/css/site.css">
+<script type="importmap">{"imports":{
+  "three":"./assets/vendor/three/three.module.min.js",
+  "three/webgpu":"./assets/vendor/three/three.webgpu.min.js",
+  "three/tsl":"./assets/vendor/three/three.tsl.min.js",
+  "three/addons/":"./assets/vendor/three/addons/"}}</script>
+</head>
+<body>
+<a class="skip" href="#contents">Skip to the content</a>
+<div class="progress-line" aria-hidden="true"></div>
+
+<header class="bar" id="bar"><div class="wrap">
+  <a class="mark" href="#top">HiRISE <span>in VR</span></a>
+  <span class="sp"></span>
+  <a class="link" href="science.html">Pipeline reference</a>
+  <button class="kbtn" type="button" id="kOpen" aria-haspopup="dialog">Search <kbd id="kKey">Ctrl K</kbd></button>
+</div></header>
+
+<nav class="rail" id="rail" aria-label="Sections">
+  <ol>
+    <li><a href="#contents">Contents</a></li>
+    <li><a href="#process">1 Overview</a></li>
+    <li><a href="#runbat">2 Running the pipeline</a></li>
+    <li><a href="#texture">3 Orthoimage selection</a></li>
+    <li><a href="#files">4 Output files</a></li>
+    <li><a href="#pcvr">5 VR in Twinmotion</a></li>
+    <li><a href="#dtms">6 Results: 40 DTMs</a></li>
+    <li><a href="#refs">7 References</a></li>
+    <li><a href="#gorgonum">Closing flight</a></li>
+  </ol>
+</nav>
+
+<!-- ================================================================ HERO -->
+<section class="hero" id="top" aria-label="Introduction">
+  <div class="hero-stick">
+    <canvas id="heroGL" aria-hidden="true"></canvas>
+    <div class="hero-shade"></div>
+    <div class="hero-copy">
+      <h1><span class="ln">Fly over Mars</span></h1>
+      <p class="lead-m">A HiRISE stereo DTM and its orthoimage become a true-scale 3D terrain, then a walkable scene inside a VR headset.</p>
+      <p class="lead">The HiRISE 3D Topographic Reconstruction Pipeline turns a HiRISE stereo Digital Terrain Model (DTM), extracted from a pushbroom stereo pair, into a true-scale 3D terrain mesh draped with its RED orthoimage. Twinmotion and a Meta Quest over Meta Horizon Link then take that mesh and its orthoimage to a walkable scene inside a VR headset.</p>
+      <div class="cta"><a class="btn solid" href="#contents">Contents</a><a class="btn line" href="#pcvr">Twinmotion VR</a></div>
+      <p class="by">By <b>Raymundo "R@y" Olguin</b>, HiRISE VR Development Lead, HiRISE Operations Center (HiROC) and Space Imagery Center (SIC), a NASA Regional Planetary Image Facility, Lunar and Planetary Laboratory, University of Arizona</p>
+      <p class="by-m">By <b>Raymundo "R@y" Olguin</b><br>HiROC and SIC, Lunar and Planetary Laboratory, University of Arizona</p>
+    </div>
+    <div class="descent" aria-live="off">
+      <div class="alt"><span id="altVal">Stereo DTM</span><small id="altLbl">1 m post spacing, estimated vertical precision of tens of cm</small></div>
+      <ol class="stages" id="stages">
+        <li class="on">Stereo DTM</li><li>Textured mesh</li><li>Twinmotion</li><li>VR headset</li>
+      </ol>
+    </div>
+    <p class="cue" id="cue">Scroll to descend</p>
+    <p class="hero-note">HiRISE DTM DTEEC_084570_1445_066516_1445_A01 (Gully Monitoring), shown unlit at vertical exaggeration 1.0. NASA/JPL/University of Arizona. <span id="gpuInfo"></span></p>
+  </div>
+</section>
+
+<main id="main">
+<div class="wrap">
+
+<!-- ================================================================ PROCESS: one DTM, four views -->
+<section class="sec toc" id="contents" aria-label="Contents">
+  <div class="tocgrid">
+    <div class="docblock">
+      <h2>Contents</h2>
+      <dl>
+        <dt>Document</dt><dd>HiRISE in VR: technical guide</dd>
+        <dt>Author</dt><dd>Raymundo "R@y" Olguin, HiROC and SIC, LPL, University of Arizona</dd>
+        <dt>Software</dt><dd>HiRISE 3D Topographic Reconstruction Pipeline v6.3.9; Twinmotion 2025.2</dd>
+        <dt>Data</dt><dd>HiRISE stereo DTMs and RED orthoimages, NASA/JPL/University of Arizona (PDS)</dd>
+        <dt>Revised</dt><dd>19 November 2026</dd>
+      </dl>
+    </div>
+    <div><h3 class="tochead">Chapters</h3>
+    <ol class="toclist">
+      <li><a href="#process"><span class="no">1</span><b>Overview</b><span>One DTM, four views: elevation, mesh, orthoimage, unlit</span></a></li>
+      <li><a href="#runbat"><span class="no">2</span><b>Running the pipeline</b><span>RUN.bat: five questions, two menus, the console</span></a></li>
+      <li><a href="#texture"><span class="no">3</span><b>Orthoimage selection</b><span>Ground error E, emission angle, binning</span></a></li>
+      <li><a href="#files"><span class="no">4</span><b>Output files</b><span>The site folder and the OBJ, MTL, JPG chain</span></a></li>
+      <li><a href="#pcvr"><span class="no">5</span><b>VR in Twinmotion</b><span>Import, Unlit view, speeds, headset</span></a></li>
+      <li><a href="#dtms"><span class="no">6</span><b>Results: all 40 DTMs</b><span>3D windows, Mars map, region filter</span></a></li>
+      <li><a href="#refs"><span class="no">7</span><b>References</b><span>Papers cited in the chapters</span></a></li>
+    </ol></div>
+    <div><h3 class="tochead">Appendices <a href="science.html">(pipeline reference)</a></h3>
+    <ol class="toclist app">
+      <li><a href="science.html#texture"><span class="no">A</span><b>Ortho selection calculator</b></a></li>
+      <li><a href="science.html#mesh"><span class="no">B</span><b>Triangle budget</b></a></li>
+      <li><a href="science.html#outputs"><span class="no">C</span><b>Outputs and coordinates</b></a></li>
+      <li><a href="science.html#pipeline"><span class="no">D</span><b>RUN.bat, screen by screen</b></a></li>
+      <li><a href="science.html#frontend"><span class="no">E</span><b>The front end in detail</b></a></li>
+      <li><a href="science.html#cli"><span class="no">F</span><b>Command line, reports, verification</b></a></li>
+      <li><a href="science.html#anatomy"><span class="no">G</span><b>Inside the pipeline</b></a></li>
+      <li><a href="science.html#twinmotion"><span class="no">H</span><b>Twinmotion VR in detail</b></a></li>
+      <li><a href="science.html#help"><span class="no">I</span><b>Troubleshooting</b></a></li>
+      <li><a href="science.html#glossary"><span class="no">J</span><b>HiRISE glossary</b></a></li>
+    </ol></div>
+  </div>
+</section>
+<section class="sec" id="process">
+  <div class="sec-head plain">
+    <h2><span class="no">1</span>Overview: from orbit to the headset</h2>
+    <p>Follow one real HiRISE terrain, the Gully Monitoring DTM, through the HiRISE 3D Topographic Reconstruction Pipeline. Step through the four views and drag the terrain to orbit it. Technical terms are defined in the <a href="science.html#glossary">HiRISE glossary</a>.</p>
+    <p class="srcnote">Source: Pipeline User Manual (v6.3.9), Chapter 1; HiRISE Pipeline Anatomy</p>
+  </div>
+  <ul class="stats" aria-label="Gully Monitoring DTM in numbers">
+    <li><b>7291 × 5172</b><span>elevation posts in the full DTM</span></li>
+    <li><b>1 m</b><span>post spacing</span></li>
+    <li><b>0.25 m</b><span>finest orthoimage grid released with this DTM (A)</span></li>
+    <li><b id="statRelief">698 m</b><span>of relief in this 3.6 km window</span></li>
+  </ul>
+  <div class="tool proc">
+    <ol class="ptabs" id="pTabs" role="tablist" aria-label="Pipeline views">
+      <li><button type="button" role="tab" data-step="0" aria-selected="true"><i>1</i>Elevation</button></li>
+      <li><button type="button" role="tab" data-step="1" aria-selected="false"><i>2</i>Mesh</button></li>
+      <li><button type="button" role="tab" data-step="2" aria-selected="false"><i>3</i>Orthoimage</button></li>
+      <li><button type="button" role="tab" data-step="3" aria-selected="false"><i>4</i>Unlit</button></li>
+      <li class="play"><button type="button" id="pPlay" aria-pressed="false">Play</button></li>
+    </ol>
+    <div class="pgrid">
+      <div class="pview">
+        <canvas id="demo3d" aria-label="3D view of the Gully Monitoring HiRISE DTM"></canvas>
+        <div class="pread" id="demoRead"></div>
+      </div>
+      <div class="pside" role="tabpanel" aria-live="polite">
+        <p class="pstage" id="pStage"></p>
+        <h3 id="pTitle"></h3>
+        <p id="pText"></p>
+        <div id="pLegend" class="elegend" hidden>
+          <div class="ramp"></div>
+          <div class="ends"><span id="lgLo"></span><span>elevation</span><span id="lgHi"></span></div>
+        </div>
+        <div id="pDs" hidden><div class="small muted">Downsampling factor</div><span class="seg" role="group" id="dsSeg"><button type="button" data-s="1" aria-pressed="true">1</button><button type="button" data-s="2" aria-pressed="false">2</button><button type="button" data-s="4" aria-pressed="false">4</button><button type="button" data-s="8" aria-pressed="false">8</button></span></div>
+        <div><div class="small muted">Vertical exaggeration</div><span class="seg" role="group" id="veSeg"><button type="button" data-v="1" aria-pressed="true">1.0×</button><button type="button" data-v="3" aria-pressed="false">3.0×</button></span></div>
+        <div class="flag good" id="demoFlag"></div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<!-- ================================================================ RUN.BAT: the pipeline front end, simulated -->
+<div class="wrap">
+<section class="sec" id="runbat">
+  <div class="sec-head plain">
+    <h2><span class="no">2</span>Running the pipeline</h2>
+    <p>The HiRISE 3D Topographic Reconstruction Pipeline (v6.3.9) is driven by RUN.bat, a five-question Windows wizard. Try it here: answer each question as an operator would, with the Gully Monitoring DTM, and watch the console the pipeline prints. Each parameter is explained beside the console.</p>
+    <p class="srcnote">Source: Pipeline User Manual (v6.3.9), Chapters 4 and 5</p>
+  </div>
+  <div class="tool wz">
+    <div class="wz-grid">
+      <div class="wz-left">
+        <div class="wz-bar"><i></i><i></i><i></i><span>RUN.bat</span></div>
+        <div class="wz-term" id="wzTerm" aria-live="polite" role="log"></div>
+        <div class="wz-opts" id="wzOpts"></div>
+      </div>
+      <div class="wz-side">
+        <div id="wzSide"></div>
+        <button type="button" class="btn line" id="wzRestart" hidden>Start again</button>
+      </div>
+    </div>
+  </div>
+  <p class="small muted">A simulation of the real front end: the questions, menus and console blocks follow the Pipeline User Manual. Installation, every flag and the full console reference are in the <a href="science.html#frontend">pipeline reference</a>.</p>
+</section>
+</div>
+
+<!-- ---------------------------------------------------------------- interlude: Gullies Tempe Terra -->
+<section class="ilude" data-dtm="gullies-tempe-terra-4905e-304n" data-move="rim" aria-label="Flight over Gullies Tempe Terra, a HiRISE DTM by Raymundo &quot;R@y&quot; Olguin">
+  <div class="il-pin">
+    <canvas aria-hidden="true"></canvas>
+    <div class="il-cap">
+      <p class="il-reg"></p>
+      <p class="il-name">Gullies Tempe Terra</p>
+      <p class="il-id"></p>
+      <p class="il-hgt"></p>
+      <p class="il-links"><a class="il-open" href="#dtms">Open in the explorer</a><a href="#texture">Next: 3 Orthoimage selection</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ TEXTURE: choosing the orthoimage -->
+<div class="band">
+<div class="wrap">
+<section class="sec" id="texture">
+  <div class="sec-head plain">
+    <h2><span class="no">3</span>Orthoimage selection</h2>
+    <p>Several orthorectified RED images (orthoimages) cover the same DTM. Two ground errors blur the texture: the ground sample distance g, and the horizontal displacement Δz·tan e that a DTM height error Δz produces at emission angle e. The pipeline scores every candidate and keeps the sharpest.</p>
+    <p class="srcnote">Source: HiRISE Ortho Selection; Pipeline User Manual (v6.3.9), Chapter 8</p>
+  </div>
+  <div class="tool losfig">
+    <div class="lgrid">
+      <div class="lpic"><svg id="losSvg" viewBox="0 0 460 300" role="img" aria-label="Cross-section: a vertical error in the DTM shifts the draped pixel sideways by delta z times tan e"></svg></div>
+      <div class="lside">
+        <label class="lslider" for="eIn"><span>Emission angle <i>e</i></span><output id="eOut"></output></label>
+        <input type="range" id="eIn" min="0" max="30" step="0.01" value="8.48">
+        <dl class="kv">
+          <dt>Horizontal displacement Δz·tan e</dt><dd id="kShift"></dd>
+          <dt>Score E at 0.25 m GSD</dt><dd id="kEA"></dd>
+        </dl>
+        <p class="formula">E = √( g² + (Δz · tan e)² )</p>
+        <p class="small muted">g is the ground sample distance, Δz the DTM vertical error (0.3 m for 1 m posts, matching the estimated vertical precision of tens of cm; Sutton et al. 2022). Smallest E wins; scores within 5 % go to the lower emission angle.</p>
+      </div>
+    </div>
+    <div class="duel">
+      <h3>The two RED images of the Gully Monitoring stereo pair</h3>
+      <p class="small muted" style="margin:-4px 0 12px">Each square is one 1 m DTM post, divided into the image's native ground sample distance.</p>
+      <div class="cand win">
+        <svg class="cimg" viewBox="0 0 100 100" data-n="4" role="img" aria-label="16 pixels of 0.25 m inside one 1 m DTM post"></svg>
+        <div><b>ESP_066516_1445</b><span>emission angle 1.37°, unbinned (bin 1), native GSD 0.25 m</span>
+          <div class="ebar"><i style="width:49.8%"></i></div><span class="ev">E = 0.250 m: selected</span></div>
+      </div>
+      <div class="cand">
+        <svg class="cimg" viewBox="0 0 100 100" data-n="2" role="img" aria-label="4 pixels of 0.5 m inside one 1 m DTM post"></svg>
+        <div><b>ESP_084570_1445</b><span>emission angle 8.48°, mostly 2 × 2 binned (bin 2), native GSD about 0.5 m</span>
+          <div class="ebar"><i style="width:100%"></i></div><span class="ev">E = 0.502 m at best, on a 0.5 m grid</span></div>
+      </div>
+      <p class="small muted" style="margin:6px 0 0">ESP_084570_1445 was acquired mostly in bin 2, so its 0.25 m grid-A orthoimage is an interpolation of 2 × 2-summed pixels and is rejected; no 0.5 m (B) orthoimage is released for it, so its best real candidate is the 1 m C orthoimage (E = 1.001 m). With the A orthoimages downloaded, ESP_066516_1445_RED_A_01_ORTHO.JP2 becomes the texture. In the run shown on this site only the two C orthoimages were in the folder, so the pipeline used ESP_066516_1445_RED_C_01_ORTHO.JP2 as a backup (E = 1.000 m): the same image wins either way.</p>
+    </div>
+  </div>
+</section>
+</div>
+</div>
+
+<!-- ---------------------------------------------------------------- interlude: Cavil Angusti South Polar -->
+<section class="ilude" data-dtm="cavil-angusti-south-polar-2834e-765s" data-move="spiral" aria-label="Flight over Cavil Angusti South Polar, a HiRISE DTM by Raymundo &quot;R@y&quot; Olguin">
+  <div class="il-pin">
+    <canvas aria-hidden="true"></canvas>
+    <div class="il-cap">
+      <p class="il-reg"></p>
+      <p class="il-name">Cavil Angusti South Polar</p>
+      <p class="il-id"></p>
+      <p class="il-hgt"></p>
+      <p class="il-links"><a class="il-open" href="#dtms">Open in the explorer</a><a href="#files">Next: 4 Output files</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ FILES: folder + three files -->
+<div class="wrap">
+<section class="sec" id="files">
+  <div class="sec-head plain">
+    <h2><span class="no">4</span>Output files: inside a site folder</h2>
+    <p>Every site the pipeline produces is one folder. Twinmotion only needs what is inside its MESH subfolder: the terrain mesh, its material file and the orthoimage texture.</p>
+    <p class="srcnote">Source: Pipeline User Manual (v6.3.9), Section 6.1; Twinmotion VR User Manual, Section 2</p>
+  </div>
+  <div class="split">
+    <div class="tool"><div class="tool-h"><h3>Read a folder name</h3><span>Tap each part</span></div><div class="tool-b">
+      <p class="fname" id="fname"><button type="button" data-p="0" aria-pressed="true">Gully_Monitoring</button><span>_</span><button type="button" data-p="1" aria-pressed="false">3525E</button><span>_</span><button type="button" data-p="2" aria-pressed="false">351S</button></p>
+      <p class="fexp" id="fexp" aria-live="polite"></p>
+      <svg id="graticule" viewBox="0 0 360 180" role="img" aria-label="Longitude and latitude grid of Mars with the site at 352.5 degrees east, 35.1 degrees south"></svg>
+      <p class="small muted" style="margin:10px 0 0">Pattern: &lt;Region&gt;_&lt;Longitude&gt;E_&lt;Latitude&gt;N|S, in tenths of a degree.</p>
+    </div></div>
+    <div class="tool"><div class="tool-h"><h3>Inside a site folder</h3><span>Try breaking the chain</span></div><div class="tool-b">
+      <p class="small muted ftlegend"><code>&lt;id&gt;</code> = DTEEC_084570_1445_066516_1445_A01, the DTM product ID</p>
+      <ul class="ftree" id="ftree" aria-label="Site folder written by the pipeline">
+        <li class="d"><span class="nm">&lt;id&gt;/</span><span class="rl">site folder</span>
+          <ul>
+            <li><span class="nm">&lt;id&gt;.IMG</span><span class="rl">DTM, PDS format</span></li>
+            <li><span class="nm">ESP_*_RED_C_01_ORTHO.JP2</span><span class="rl">orthoimages and labels</span></li>
+            <li class="d"><span class="nm">JP2_CONVERTED/</span><span class="rl">ORTHO_SELECTION.csv</span></li>
+            <li class="d mesh"><span class="nm">MESH/</span><span class="rl">import this folder</span>
+              <ul>
+                <li class="f" id="fObj"><span class="nm">&lt;id&gt;_Mesh01.obj</span><span class="rl">terrain mesh</span>
+                  <code class="ref" id="refObj">mtllib &lt;id&gt;_Material_01.mtl</code></li>
+                <li class="f" id="fMtl"><span class="nm">&lt;id&gt;_Material_01.mtl</span><span class="rl">material</span>
+                  <code class="ref" id="refMtl">map_Kd &lt;id&gt;_Texture01.jpg</code></li>
+                <li class="f" id="fJpg"><span class="nm" id="jpgName">&lt;id&gt;_Texture01.jpg</span><span class="rl">orthoimage texture</span></li>
+                <li><span class="nm">&lt;id&gt;_Mesh01.glb</span><span class="rl">same mesh, texture embedded</span></li>
+                <li><span class="nm">&lt;id&gt;_TEXTURE_LINK.txt</span><span class="rl">the chain, in plain text</span></li>
+              </ul></li>
+          </ul></li>
+        <li class="f moved" id="fMoved" hidden><span class="nm">&lt;id&gt;_Material_01.mtl</span><span class="rl">moved out of MESH</span></li>
+      </ul>
+      <figure class="ftile" id="ftile">
+        <img id="fImgOk" src="docs/img/site_textured.jpg" alt="Illustration of the terrain with the orthoimage applied" loading="lazy">
+        <img id="fImgBad" src="docs/img/site_untextured.jpg" alt="Illustration of the terrain with a plain white material" loading="lazy" hidden>
+        <figcaption id="fCap">Illustration: orthoimage applied</figcaption>
+      </figure>
+      <div class="bseg" role="group" id="breakSeg" aria-label="Try breaking the chain"><button type="button" data-b="ok" aria-pressed="true">Keep together</button><button type="button" data-b="rename" aria-pressed="false">Rename the JPG</button><button type="button" data-b="move" aria-pressed="false">Move the MTL</button></div>
+      <p class="fexp" id="bexp" aria-live="polite"></p>
+    </div></div>
+  </div>
+</section>
+</div>
+
+<!-- ---------------------------------------------------------------- interlude: North Polar Layered Deposits Bench -->
+<section class="ilude" data-dtm="north-polar-layered-deposits-bench-1655e-852n" data-move="valley" aria-label="Flight over North Polar Layered Deposits Bench, a HiRISE DTM by Raymundo &quot;R@y&quot; Olguin">
+  <div class="il-pin">
+    <canvas aria-hidden="true"></canvas>
+    <div class="il-cap">
+      <p class="il-reg"></p>
+      <p class="il-name">North Polar Layered Deposits Bench</p>
+      <p class="il-id"></p>
+      <p class="il-hgt"></p>
+      <p class="il-links"><a class="il-open" href="#dtms">Open in the explorer</a><a href="#pcvr">Next: 5 VR in Twinmotion</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ HEADSET -->
+<div class="band">
+<div class="wrap">
+<section class="sec" id="pcvr">
+  <div class="sec-head plain">
+    <h2><span class="no">5</span>VR in Twinmotion</h2>
+    <p>Twinmotion 2025.2 on a Windows workstation with a discrete NVIDIA GPU, and a Meta Quest connected over Meta Horizon Link. Plan on about 10 minutes per site once the software is installed. Step through the real screens below.</p>
+    <p class="srcnote">Source: Twinmotion VR User Manual (Version 1.0)</p>
+  </div>
+  <div class="tool"><div class="tool-b">
+    <div class="gallery">
+      <div><figure><img id="galImg" src="docs/img/vr_workflow_overview.jpg" alt=""><figcaption id="galCap"></figcaption></figure>
+        <div class="navbtns"><button type="button" id="galPrev">Previous</button><span class="pos" id="galPos"></span><button type="button" id="galNext">Next</button></div></div>
+      <ol class="steplist" id="galList"></ol>
+    </div>
+  </div></div>
+  <h3 class="subh">Choose your speed before you click VR</h3>
+  <div class="speeds" id="speeds"></div>
+  <div class="comfort" aria-hidden="true"></div>
+  <p id="speedInfo" style="margin-top:12px"></p>
+  <p class="small muted">Reach distant features with the teleport ray instead of a higher speed: teleporting causes no motion sickness. Requirements, import settings, controller layouts and performance tuning are in the <a href="science.html#twinmotion">pipeline reference</a>.</p>
+</section>
+</div>
+</div>
+
+
+<!-- ---------------------------------------------------------------- interlude: Guilled Crater -->
+<section class="ilude" data-dtm="guilled-crater-2226e-438s" data-move="crane" aria-label="Flight over Guilled Crater, a HiRISE DTM by Raymundo &quot;R@y&quot; Olguin">
+  <div class="il-pin">
+    <canvas aria-hidden="true"></canvas>
+    <div class="il-cap">
+      <p class="il-reg"></p>
+      <p class="il-name">Guilled Crater</p>
+      <p class="il-id"></p>
+      <p class="il-hgt"></p>
+      <p class="il-links"><a class="il-open" href="#dtms">Open in the explorer</a><a href="#dtms">Next: 6 Results: all 40 DTMs</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- ================================================================ ALL DTMS -->
+<div class="wrap">
+<section class="sec" id="dtms">
+  <div class="sec-head plain">
+    <h2><span class="no">6</span>Results: all 40 DTMs</h2>
+    <p>Every HiRISE DTM produced at HiROC by Raymundo "R@y" Olguin and released to the PDS. Pick a site on the map or in the grid: each one loads a true-scale window of the DTM, draped with its RED orthoimage and displayed unlit. Drag to orbit, pinch or scroll to zoom.</p>
+    <p class="srcnote">Source: HiRISE_Phone gallery; PDS labels of each DTM</p>
+  </div>
+  <div class="tool dx">
+    <div class="dxgrid">
+      <div class="dxview">
+        <canvas id="dxGL" aria-label="3D view of the selected HiRISE DTM"></canvas>
+        <div class="dxload" id="dxLoad">Loading DTM</div>
+        <div class="dxctl">
+          <button type="button" id="dxPrev" aria-label="Previous DTM">Previous</button>
+          <span id="dxPos"></span>
+          <button type="button" id="dxNext" aria-label="Next DTM">Next</button>
+          <span class="sp"></span>
+          <div class="seg" role="group" id="dxVE" aria-label="Vertical exaggeration">
+            <button type="button" data-ve="1" aria-pressed="true">1×</button><button type="button" data-ve="2" aria-pressed="false">2×</button><button type="button" data-ve="4" aria-pressed="false">4×</button>
+          </div>
+        </div>
+      </div>
+      <div class="dxside">
+        <p class="dxreg" id="dxReg"></p>
+        <h3 class="dxname" id="dxName"></h3>
+        <p class="dxco" id="dxCo"></p>
+        <dl class="kv dxkv" id="dxKV"></dl>
+        <p class="dxgeo" id="dxGeo"></p>
+        <details class="dxref"><summary>Reference</summary><p class="small muted dxcite" id="dxCite"></p></details>
+        <p><a id="dxLink" href="#" target="_blank" rel="noopener">HiRISE DTM page</a></p>
+      </div>
+    </div>
+    <div class="dxmapw">
+      <svg id="dxMap" viewBox="-12 -12 744 384" role="img" aria-label="Locations of the 40 DTMs on Mars, east longitude 0 to 360 degrees, latitude 90 S to 90 N"></svg>
+    </div>
+    <div class="dxbar">
+      <div class="seg" role="group" id="dxReg2" aria-label="Region"></div>
+      <span class="small muted" id="dxCount"></span>
+    </div>
+    <ul class="dxcards" id="dxCards"></ul>
+    <p class="small muted dxnote">Each window is a square of 256 × 256 posts cut from the valid interior of the DTM, read directly from the PDS product, with the texture from the browse version of the selected RED orthoimage (2.5 to 13.5 m per pixel). Elevations in the table are for the full DTM. HiRISE data: NASA/JPL/University of Arizona.</p>
+  </div>
+</section>
+</div>
+
+<div class="wrap">
+<section class="sec" id="refs">
+  <div class="sec-head plain"><h2><span class="no">7</span>References</h2></div>
+  <ol class="refs prose">
+    <li>McEwen, A. S., et al. (2007). Mars Reconnaissance Orbiter's High Resolution Imaging Science Experiment (HiRISE). <i>Journal of Geophysical Research: Planets</i>, 112, E05S02. <a href="https://doi.org/10.1029/2005JE002605">doi:10.1029/2005JE002605</a></li>
+    <li>Kirk, R. L., et al. (2008). Ultrahigh resolution topographic mapping of Mars with MRO HiRISE stereo images: Meter-scale slopes of candidate Phoenix landing sites. <i>Journal of Geophysical Research: Planets</i>, 113, E00A24. <a href="https://doi.org/10.1029/2007JE003000">doi:10.1029/2007JE003000</a></li>
+    <li>Sutton, S. S., Chojnacki, M., McEwen, A. S., Kirk, R. L., et al. (2022). Revealing active Mars with HiRISE digital terrain models. <i>Remote Sensing</i>, 14(10), 2403. <a href="https://doi.org/10.3390/rs14102403">doi:10.3390/rs14102403</a></li>
+  </ol>
+  <p class="small muted prose">Screenshots captured by Raymundo "R@y" Olguin in Twinmotion 2025.2 on Windows.</p>
+</section>
+</div>
+</main>
+
+<!-- ================================================================ CLOSING FLIGHT -->
+<section class="hero outro" id="gorgonum" aria-label="Flyover of Gorgonum Chaos">
+  <div class="hero-stick">
+    <canvas id="outroGL" aria-hidden="true"></canvas>
+    <div class="hero-shade"></div>
+    <div class="hero-copy">
+      <h2><span class="ln">Gorgonum</span><span class="ln">Chaos</span></h2>
+      <p class="lead-m">DTEEC_074396_1425_074251_1425_A01. Scroll to fly to the rim of a fresh impact crater.</p>
+      <p class="lead">DTEEC_074396_1425_074251_1425_A01, built from the stereo pair ESP_074396_1425 and ESP_074251_1425. Scroll to fly across the chaos mesas to the rim of a fresh impact crater, at true scale.</p>
+    </div>
+    <div class="descent" aria-live="off">
+      <div class="alt"><span id="altVal2">Overview</span><small id="altLbl2">a 3.6 km window of the DTM, 1 m posts downsampled by a factor of 6</small></div>
+      <ol class="stages" id="stages2">
+        <li class="on">Overview</li><li>Stereo pair</li><li>Orthoimage</li><li>Crater rim</li>
+      </ol>
+    </div>
+    <p class="hero-note"><span id="hgt2"></span><br>HiRISE DTM DTEEC_074396_1425_074251_1425_A01 (Gorgonum Chaos), shown unlit at vertical exaggeration 1.0. NASA/JPL/University of Arizona.</p>
+  </div>
+</section>
+<dialog class="palette" id="palette" aria-label="Search the guide">
+  <input type="text" id="pq" placeholder="Jump to a step, tool or problem" aria-label="Search" autocomplete="off">
+  <ul id="pl" role="listbox"></ul>
+  <div class="hint">Arrow keys to move, Enter to open, Esc to close</div>
+</dialog>
+<script src="assets/vendor/gsap/gsap.min.js"></script>
+<script src="assets/vendor/gsap/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/lenis/lenis.min.js"></script>
+<script src="assets/js/main.js"></script>
+<script src="assets/js/ui.js"></script>
+<script type="module" src="assets/js/hero.js"></script>
+<script src="assets/js/wizard.js"></script>
+<script src="assets/js/process-figs.js"></script>
+<script type="module" src="assets/js/process.js"></script>
+<script type="module" src="assets/js/outro.js"></script>
+<script type="module" src="assets/js/dtms.js"></script>
+<script type="module" src="assets/js/interludes.js"></script>
+</body>
+</html>

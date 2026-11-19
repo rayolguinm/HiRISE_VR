@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HiRISE Ortho Selection</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;600;700&family=Source+Sans+3:ital,wght@0,400;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column (≈70ch) with full-width instrument panels; the calculator is the centrepiece. */
+:root{
+  --bg:#EEF0F1; --surface:#F9FAFA; --sunk:#E3E7E9; --ink:#15191C; --muted:#56606A; --line:#C9D0D5;
+  --accent:#9A5B1F;        /* dust ochre, used sparingly */
+  --data:#245E7C;          /* HiRISE RED channel plots, links */
+  --ok:#2C7A4B; --warn:#A86F0E; --bad:#A3322A;
+  --f-display:"Archivo Narrow","Arial Narrow",Arial,sans-serif;
+  --f-body:"Source Sans 3","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:6px;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121518; --surface:#1A1F23; --sunk:#232A2F; --ink:#E7EBEE; --muted:#9AA6B0; --line:#333C43;
+  --accent:#D9944F; --data:#6FB3D6; --ok:#5FBF86; --warn:#E0A93F; --bad:#E57368; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121518; --surface:#1A1F23; --sunk:#232A2F; --ink:#E7EBEE; --muted:#9AA6B0; --line:#333C43;
+  --accent:#D9944F; --data:#6FB3D6; --ok:#5FBF86; --warn:#E0A93F; --bad:#E57368; color-scheme:dark}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 var(--f-body);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[hidden]{display:none!important}
+.wrap{max-width:1040px;margin:0 auto;padding-block:40px 64px}
+.col{max-width:70ch}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;line-height:1.1;margin:0}
+h1{font-size:clamp(40px,7vw,68px);font-weight:700;letter-spacing:-.01em}
+h2{font-size:30px;font-weight:700;margin:56px 0 12px}
+h3{font-size:21px;font-weight:600}
+p{margin:0 0 14px}
+a{color:var(--data)}
+code,.mono{font-family:var(--f-mono);font-size:.86em}
+code{background:var(--sunk);padding:1px 5px;border-radius:3px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.byline{display:flex;flex-wrap:wrap;gap:4px 18px;color:var(--muted);font-size:15px;margin:14px 0 22px}
+.byline b{color:var(--ink)}
+.lead{font-size:20px;line-height:1.55}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+:focus-visible{outline:2px solid var(--data);outline-offset:2px}
+
+/* the formula strip */
+.formula{display:flex;flex-wrap:wrap;align-items:center;gap:10px 24px;margin:26px 0 8px;padding:18px 20px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.formula .eq{font-family:var(--f-mono);font-size:clamp(18px,2.6vw,24px);white-space:nowrap}
+.formula dl{display:grid;grid-template-columns:auto 1fr;gap:2px 10px;margin:0;font-size:14px;color:var(--muted)}
+.formula dt{font-family:var(--f-mono);color:var(--ink)}
+.formula dd{margin:0}
+
+/* folder figure */
+.fig{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin:20px 0;overflow:hidden}
+.fig-h{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:9px 16px;border-bottom:1px solid var(--line);background:var(--sunk);font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase}
+.fig-h span:last-child{color:var(--muted);text-transform:none;letter-spacing:0}
+.fig-b{padding:16px}
+.tbl{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+td.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.m{font-family:var(--f-mono);font-size:13.5px;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+
+/* steps */
+.steps{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:0;border-top:1px solid var(--line)}
+.step{display:grid;grid-template-columns:64px minmax(0,1fr) minmax(0,15rem);gap:6px 20px;padding:18px 0;border-bottom:1px solid var(--line)}
+.step .n{font-family:var(--f-display);font-size:40px;font-weight:700;line-height:1;color:var(--accent)}
+.step h3{margin-bottom:6px}
+.step .rule{margin:0 0 6px}
+.step .why{margin:0;color:var(--muted);font-size:15.5px}
+.step .src{font-size:13.5px;color:var(--muted);border-left:2px solid var(--line);padding-left:12px}
+.step .src b{display:block;font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);font-weight:500;margin-bottom:4px}
+.gate{display:inline-block;font-family:var(--f-mono);font-size:11px;letter-spacing:.05em;padding:1px 7px;border-radius:10px;border:1px solid var(--line);color:var(--muted);margin-left:8px;vertical-align:middle;text-transform:uppercase}
+
+/* calculator */
+.calc{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);margin:20px 0}
+.calc-top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);background:var(--sunk)}
+.calc-top label{font-size:14px;color:var(--muted)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;flex-wrap:wrap}
+.seg button{font:500 13px var(--f-mono);background:var(--surface);color:var(--ink);border:0;border-right:1px solid var(--line);padding:6px 11px;cursor:pointer}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+input[type=number]{font:500 14px var(--f-mono);width:6.5em;padding:5px 7px;border:1px solid var(--line);border-radius:4px;background:var(--surface);color:var(--ink)}
+.imgs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.img{padding:16px;display:grid;gap:12px;align-content:start}
+.img+.img{border-left:1px solid var(--line)}
+.img h3{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.status{font:500 11.5px var(--f-mono);letter-spacing:.05em;text-transform:uppercase;padding:2px 8px;border-radius:10px;border:1px solid currentColor}
+.status.win{color:var(--ok)} .status.lose{color:var(--muted)} .status.drop{color:var(--bad)}
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.row>label{min-width:7.5em;font-size:14px;color:var(--muted)}
+input[type=range]{flex:1 1 140px;accent-color:var(--data)}
+.val{font-family:var(--f-mono);font-variant-numeric:tabular-nums;min-width:4.5em}
+.chk{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--muted)}
+.out{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.out div{border:1px solid var(--line);border-radius:4px;padding:8px 10px;background:var(--bg)}
+.out b{display:block;font:500 19px var(--f-mono);font-variant-numeric:tabular-nums}
+.out span{font-size:12.5px;color:var(--muted)}
+.verdict{padding:14px 16px;border-top:1px solid var(--line);font-size:16px}
+.verdict b{color:var(--ok)}
+.chart{padding:4px 16px 16px;border-top:1px solid var(--line)}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);padding:6px 0 0}
+.legend i{display:inline-block;width:18px;height:3px;vertical-align:middle;margin-right:6px}
+.example{font-size:13px;color:var(--muted);padding:0 16px 14px}
+
+/* cases */
+.case-pick{font-weight:600}
+.pill{display:inline-block;font:500 11px var(--f-mono);padding:1px 7px;border-radius:10px;border:1px solid var(--line);white-space:nowrap}
+.pill.same{color:var(--ok);border-color:var(--ok)} .pill.diff{color:var(--warn);border-color:var(--warn)}
+
+/* log */
+pre{font-family:var(--f-mono);font-size:12.5px;line-height:1.5;background:var(--sunk);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;overflow-x:auto;margin:14px 0}
+.refs{padding-left:20px;font-size:15px}
+.refs li{margin-bottom:8px}
+footer{margin-top:56px;padding-top:16px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+
+@media (max-width:760px){
+  .step{grid-template-columns:44px minmax(0,1fr)}
+  .step .n{font-size:30px}
+  .step .src{grid-column:2}
+  .imgs{grid-template-columns:minmax(0,1fr)}
+  .img+.img{border-left:0;border-top:1px solid var(--line)}
+  .out{grid-template-columns:repeat(3,minmax(0,1fr))}
+}
+@media (prefers-reduced-motion:no-preference){.status,.out b{transition:color .2s}}
+</style>
+
+</head>
+<body>
+<div class="wrap">
+<header class="col">
+  <div class="eyebrow">MRO · HiRISE · obj_pipeline v6.3.9 · texture selection</div>
+  <h1>HiRISE Ortho Selection</h1>
+  <div class="byline"><span>Author <b>Raymundo "R@y" Olguin</b></span><span>HiRISE Operations Center (HiROC), Lunar and Planetary Laboratory, University of Arizona</span></div>
+  <p class="lead">A HiRISE DTM project usually holds four orthoimages: both images of the stereo pair, each at its full resolution and as a reduced 1 m copy. Only one becomes the texture of the 3D mesh. The pipeline chooses the one that puts the most real detail in the right place on the terrain, and never one with holes when a complete one exists.</p>
+  <p>The principles come from the HiRISE instrument and DTM literature (McEwen, Kirk, Sutton, Chojnacki and colleagues). The thresholds and the single score below are this pipeline's synthesis of those principles, written so every choice can be checked. They should be confirmed with the HiROC photogrammetry lead before the rule itself is cited.</p>
+</header>
+
+<div class="formula" role="figure" aria-label="Ranking score">
+  <div class="eq">E = √( g² + (Δz · tan e)² )</div>
+  <dl>
+    <dt>g</dt><dd>ortho grid spacing: A 0.25 m, B 0.5 m, C 1.0 m</dd>
+    <dt>Δz</dt><dd>DTM vertical precision expected for its post spacing (m): 0.3 m at 1 m posts, 1.0 m at 2 m posts (Sutton et al. 2022). The README "RMS z" is the residual of the tie to MOLA, not the precision, so it is not used (v6.3.7).</dd>
+    <dt>e</dt><dd>emission angle of the source image, from its label</dd>
+    <dt>E</dt><dd>effective ground error in metres; the smallest wins</dd>
+  </dl>
+</div>
+
+<section class="col">
+  <h2>What is in a project folder</h2>
+  <p>HiROC orthorectifies each image of the stereo pair onto the DTM made from that same pair, so every ortho in the folder shares the DTM's geometry. The letter in the file name is the grid spacing. The binning of the source image sets its real pixel size, and so which letter carries its full detail.</p>
+</section>
+<div class="fig">
+  <div class="fig-h"><span>Binning and the native ortho</span><span>HiRISE DTM README; McEwen et al. 2007</span></div>
+  <div class="fig-b tbl"><table>
+    <thead><tr><th>Source image</th><th>Real pixel size</th><th>Native ortho</th><th>Reduced copy</th><th>Never use</th></tr></thead>
+    <tbody>
+      <tr><td>Bin 1</td><td class="num">0.25 to 0.32 m</td><td><b>A</b> (0.25 m)</td><td>C (1.0 m), backup only</td><td class="muted">none finer</td></tr>
+      <tr><td>Bin 2</td><td class="num">0.5 to 0.64 m</td><td><b>B</b> (0.5 m)</td><td>C (1.0 m), backup only</td><td>A: interpolated, no new detail</td></tr>
+      <tr><td>Bin 4</td><td class="num">1.0 to 1.3 m</td><td><b>C</b> (1.0 m)</td><td class="muted">none</td><td>A, B</td></tr>
+    </tbody>
+  </table></div>
+</div>
+<p class="col small muted">Example of a bin 1 project: <code>DTEEC_010039_2220_009538_2220_A01.IMG</code> with <code>PSP_009538_2220_RED_A_01_ORTHO.JP2</code>, <code>…_RED_C_01_ORTHO.JP2</code> and the same two for <code>PSP_010039_2220</code>. The two A orthos are the candidates; the C orthos are backups.</p>
+
+<section>
+  <h2 class="col">The method, step by step</h2>
+  <p class="col">Each step only narrows what the previous one kept. The order encodes the priorities: a hole is worse than blur, and blur and misplacement are weighed in the same unit.</p>
+  <ol class="steps">
+    <li class="step"><div class="n">0</div><div><h3>Inventory</h3><p class="rule">For every ortho JP2: observation ID, colour band and grid letter from the file name; emission and incidence angles, <code>MRO:BINNING</code> and <code>MAP_SCALE</code> from the labels; the DTM's vertical RMS error from the README.</p><p class="why">Every later decision is made from these numbers, and all of them are written to the selection record.</p></div><div class="src"><b>Basis</b>HiRISE DTM README; Sutton et al. 2022</div></li>
+    <li class="step"><div class="n">1</div><div><h3>Eligibility<span class="gate">filter</span></h3><p class="rule">RED orthos only. Unreadable or blank files are rejected.</p><p class="why">RED is the full-swath, full-resolution channel; the colour channels cover a narrower strip and are usually binned.</p></div><div class="src"><b>Basis</b>McEwen et al. 2007</div></li>
+    <li class="step"><div class="n">2</div><div><h3>Native sampling<span class="gate">filter</span></h3><p class="rule">Per image, keep only the ortho at the image's real pixel size: bin 1 → A, bin 2 → B, bin 4 → C. A finer grid is dropped; a coarser grid becomes a backup.</p><p class="why">A finer grid only interpolates. A coarser grid throws away detail the mesh cannot carry: a HiRISE DTM resolves only about 10 to 20 image pixels horizontally, so everything finer exists only in the texture. Evidence order: binning in a label, then a source-image <code>MAP_SCALE</code>, then the finest grid HiROC produced for that image (an <code>_ORTHO.LBL</code> scale describes the ortho grid, not the image).</p><p class="why">Since v6.3.9 the reports also give each source image's true pixel size from the PDS RDR cumulative index: slant distance × 1 µrad IFOV × binning (McEwen et al. 2007). At MRO's 250 to 320 km slant range a bin-1 pixel is 0.25 to 0.32 m (0.32 m for ESP_044810_2620), so the 0.25 m A grid is the native grid or slightly finer than it, never coarser. The selection rule is unchanged; the same pixel size now sets the stereo precision EP.</p></div><div class="src"><b>Basis</b>McEwen et al. 2007 (binning modes, SNR); Kirk et al. 2020 (effective DTM resolution)</div></li>
+    <li class="step"><div class="n">3</div><div><h3>Coverage of the DTM<span class="gate">filter</span></h3><p class="rule">Coverage = valid DTM posts where the ortho has real pixels ÷ all valid DTM posts, sampled at the DTM's own posts. Candidates more than 1 percentage point below the most complete one become backups.</p><p class="why">One image of a pair can have missing data that the other does not. A hole is a total loss of texture, worse than any sub-metre difference ranked later. Sampling at the DTM posts ignores the black frame around every HiRISE strip, which the old test counted as empty.</p></div><div class="src"><b>Basis</b>pipeline synthesis; orthos share the DTM grid (Sutton et al. 2022)</div></li>
+    <li class="step"><div class="n">4</div><div><h3>Geometric fidelity<span class="gate">override + measure</span></h3><p class="rule">Images flagged for spacecraft jitter (<code>--jitter-obs</code> or a <code>JITTER.txt</code> in the project) are used only if nothing else is left. For the rest, the sideways misplacement on the DTM is Δz · tan e.</p><p class="why">Jitter distorts HiRISE pushbroom images and can disturb stereo matching and the orthoimages. A DTM height error shifts the draped image by Δz · tan e; orthoimage registration offsets are part of the uncertainty in HiRISE change measurements.</p></div><div class="src"><b>Basis</b>Sutton et al. 2017 (jitter); Kirk et al. 2008 (stereo geometry); Chojnacki et al. 2019 (registration offsets)</div></li>
+    <li class="step"><div class="n">5</div><div><h3>Score<span class="gate">rank</span></h3><p class="rule">E = √(g² + (Δz · tan e)²) for each remaining ortho; the smallest wins. Δz is the expected precision for the post spacing: 0.3 m for 1 m DTMs and 1.0 m for 2 m DTMs. The README "RMS z" is a control residual to MOLA (Sutton et al. 2022, Sec. 2.1.3) and is not used.</p><p class="why">Blur from the pixel size and misplacement from the viewing angle are independent errors in the same unit, metres on the ground, so they add in quadrature.</p></div><div class="src"><b>Basis</b>DTM precision: tens of cm at 1 m posts, about 1 m at 2 m posts (Sutton et al. 2022)</div></li>
+    <li class="step"><div class="n">6</div><div><h3>Radiometric tie-break<span class="gate">rank</span></h3><p class="rule">Within 5 % of the best E: lower emission, then fewer saturated pixels, then higher coverage.</p><p class="why">The near-nadir image is the one the stereo plan designs as the mapping image; signal-to-noise depends on binning and TDI.</p></div><div class="src"><b>Basis</b>McEwen et al. 2007</div></li>
+    <li class="step"><div class="n">7</div><div><h3>Fallback and record</h3><p class="rule">If the winner fails to convert, the next in rank is used, backups included. Every candidate, its numbers and the decision go to <code>JP2_CONVERTED/ORTHO_SELECTION.csv</code>, the run log and the technical reports.</p><p class="why">A recorded choice can be reproduced and reviewed, which matters when orthos feed measurements such as change detection.</p></div><div class="src"><b>Basis</b>provenance practice; Sutton et al. 2022; Chojnacki et al. 2019</div></li>
+  </ol>
+</section>
+
+<section>
+  <h2 class="col">Try it: two images, one texture</h2>
+  <p class="col">Set the binning, emission angle and coverage of each image of a pair and the DTM's vertical error. The calculator applies steps 2 to 6 exactly as the pipeline does.</p>
+  <div class="calc" id="calc">
+    <div class="calc-top">
+      <label for="dz">DTM vertical error Δz</label>
+      <span class="seg" role="group" aria-label="DTM presets"><button type="button" data-dz="0.3" aria-pressed="false">1 m DTM · 0.3 m</button><button type="button" data-dz="1.0" aria-pressed="true">2 m DTM · 1.0 m</button></span>
+      <input type="number" id="dz" min="0.05" max="3" step="0.05" value="1.0"> <span class="muted small">m</span>
+    </div>
+    <div class="imgs">
+      <div class="img" data-i="0">
+        <h3>Image 1 <span class="status" id="st0"></span></h3>
+        <div class="row"><label>Binning</label><span class="seg" role="group" aria-label="Image 1 binning"><button type="button" data-b="1" aria-pressed="true">bin 1</button><button type="button" data-b="2" aria-pressed="false">bin 2</button><button type="button" data-b="4" aria-pressed="false">bin 4</button></span></div>
+        <div class="row"><label for="e0">Emission e</label><input type="range" id="e0" min="0" max="30" step="0.5" value="27"><span class="val" id="e0v"></span></div>
+        <div class="row"><label for="c0">DTM coverage</label><input type="range" id="c0" min="70" max="100" step="0.5" value="100"><span class="val" id="c0v"></span></div>
+        <label class="chk"><input type="checkbox" id="j0"> known spacecraft jitter</label>
+        <div class="out"><div><b id="g0"></b><span>native grid</span></div><div><b id="m0"></b><span>Δz·tan e</span></div><div><b id="s0"></b><span>score E</span></div></div>
+      </div>
+      <div class="img" data-i="1">
+        <h3>Image 2 <span class="status" id="st1"></span></h3>
+        <div class="row"><label>Binning</label><span class="seg" role="group" aria-label="Image 2 binning"><button type="button" data-b="1" aria-pressed="false">bin 1</button><button type="button" data-b="2" aria-pressed="true">bin 2</button><button type="button" data-b="4" aria-pressed="false">bin 4</button></span></div>
+        <div class="row"><label for="e1">Emission e</label><input type="range" id="e1" min="0" max="30" step="0.5" value="3"><span class="val" id="e1v"></span></div>
+        <div class="row"><label for="c1">DTM coverage</label><input type="range" id="c1" min="70" max="100" step="0.5" value="100"><span class="val" id="c1v"></span></div>
+        <label class="chk"><input type="checkbox" id="j1"> known spacecraft jitter</label>
+        <div class="out"><div><b id="g1"></b><span>native grid</span></div><div><b id="m1"></b><span>Δz·tan e</span></div><div><b id="s1"></b><span>score E</span></div></div>
+      </div>
+    </div>
+    <div class="verdict" id="verdict" aria-live="polite"></div>
+    <div class="chart">
+      <svg id="plot" viewBox="0 0 660 270" role="img" aria-label="Score E against emission angle for each grid"></svg>
+      <div class="legend"><span><i style="background:var(--data)"></i>A, 0.25 m (bin 1)</span><span><i style="background:var(--accent)"></i>B, 0.5 m (bin 2)</span><span><i style="background:var(--muted)"></i>C, 1.0 m (bin 4)</span><span>● images at their emission angle</span></div>
+    </div>
+    <p class="example">Starting values are an example, not a real observation: a bin 1 image at 27° and a bin 2 image at 3° on a 2 m-class DTM. Move image 1 below about 23°, or switch to the 1 m DTM preset, and the A ortho takes over.</p>
+  </div>
+</section>
+
+<section>
+  <h2 class="col">What it picks, by project type</h2>
+  <div class="fig"><div class="fig-b tbl"><table>
+    <thead><tr><th>Project</th><th>Old rule (letter first, then emission)</th><th>Method above</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>Bin 1 + bin 1</td><td>Lower-emission A</td><td class="case-pick">Lower-emission A</td><td><span class="pill same">same</span></td></tr>
+      <tr><td>Bin 2 + bin 2</td><td>Lower-emission B</td><td class="case-pick">Lower-emission B</td><td><span class="pill same">same</span></td></tr>
+      <tr><td>Bin 1 + bin 2, 1 m DTM</td><td>A</td><td class="case-pick">A (its sharpness outweighs any HiRISE look angle)</td><td><span class="pill same">same</span></td></tr>
+      <tr><td>Bin 1 + bin 2, 2 m-class DTM, bin 1 image below about 23°</td><td>A</td><td class="case-pick">A</td><td><span class="pill same">same</span></td></tr>
+      <tr><td>Bin 1 + bin 2, 2 m-class DTM, bin 1 image steeper than about 23°</td><td>A, shifted 0.4 to 0.6 m on the terrain</td><td class="case-pick">Near-nadir B</td><td><span class="pill diff">changed</span></td></tr>
+      <tr><td>An A ortho made from a bin 2 image</td><td>That A (interpolated)</td><td class="case-pick">The image's own B</td><td><span class="pill diff">changed</span></td></tr>
+      <tr><td>One image has a data gap</td><td>Gap image if it has lower emission and is under 90 % empty</td><td class="case-pick">The complete image</td><td><span class="pill diff">changed</span></td></tr>
+      <tr><td>Best image has known jitter</td><td>The jittery image</td><td class="case-pick">The other image</td><td><span class="pill diff">changed</span></td></tr>
+    </tbody>
+  </table></div></div>
+</section>
+
+<section class="col">
+  <h2>What the pipeline writes</h2>
+  <p>The run log shows the evidence table and the choice:</p>
+</section>
+<pre>Scientific selection  (score E = √(g² + (Δz·tan e)²), Δz = 1.00 m, expected precision for 2.0 m posts (Sutton et al. 2022))
+ # file                                 grid role       e°    cover   E (m)
+ 1 PSP_000002_2000_RED_B_01_ORTHO.JP2   0.50 native    2.00  100.0%   0.501
+ 2 PSP_000001_2000_RED_A_01_ORTHO.JP2   0.25 native   27.00  100.0%   0.568
+ 3 PSP_000001_2000_RED_C_01_ORTHO.JP2   1.00 backup   27.00  100.0%   1.122  coarser than native A: backup only
+ - PSP_000002_2000_RED_A_01_ORTHO.JP2   0.25 rejected  2.00                  grid 0.25 m finer than the image's pixels
+★ SELECTED  PSP_000002_2000_RED_B_01_ORTHO.JP2   (native B: binning 2 in label)</pre>
+<p class="col small muted">Output of the pipeline's own test case "mixed binning on a 2 m-class DTM" (synthetic project), not a real observation.</p>
+<section class="col">
+  <p>The same rows go to <code>JP2_CONVERTED/ORTHO_SELECTION.csv</code> with these columns: rank, selected, file, observation, band, grid letter and spacing, binning, native letter and how it was decided, role, emission and incidence angles, coverage, saturated pixels, jitter flag, Δz and its source, misplacement, score E and the decision in words. The HTML technical report shows the table in its ortho section, and the PDF and LaTeX reports describe the method.</p>
+  <h2>Using it</h2>
+  <p>Nothing changes in how you run the pipeline. Two optional inputs exist for jitter, which cannot be measured reliably from an ortho alone:</p>
+</section>
+<pre>python -m obj_pipeline --input "D:\HiRISE\DTEEC_010039_2220_009538_2220_A01" --formats all --jitter-obs ESP_083055_1630
+
+# or, per project, a file named JITTER.txt next to the DTM:
+ESP_083055_1630    # example ID: one observation per line, # starts a comment</pre>
+
+<section class="col">
+  <h2>Limits</h2>
+  <p>The 1 percentage point coverage tolerance, the 5 % tie band and the assumed Δz values are choices made for this pipeline, not published HiROC thresholds. Jitter is a manual flag. Shadow and haze are not scored beyond saturation, and both images of a pair usually share similar illumination. The score ranks how faithfully the texture sits on the DTM; it does not judge which image is prettier.</p>
+  <h2>References</h2>
+  <ol class="refs">
+    <li>McEwen, A. S., et al. (2007). Mars Reconnaissance Orbiter's High Resolution Imaging Science Experiment (HiRISE). <i>Journal of Geophysical Research</i>, 112, E05S02. <a href="https://doi.org/10.1029/2005JE002605">doi:10.1029/2005JE002605</a></li>
+    <li>Kirk, R. L., et al. (2008). Ultrahigh resolution topographic mapping of Mars with MRO HiRISE stereo images: Meter-scale slopes of candidate Phoenix landing sites. <i>Journal of Geophysical Research</i>, 113, E00A24. <a href="https://doi.org/10.1029/2007JE003000">doi:10.1029/2007JE003000</a></li>
+    <li>Sutton, S. S., Boyd, A. K., Kirk, R. L., et al. (2017). Correcting spacecraft jitter in HiRISE images. <i>ISPRS Archives</i>, XLII-3/W1, 141–148. <a href="https://doi.org/10.5194/isprs-archives-XLII-3-W1-141-2017">doi:10.5194/isprs-archives-XLII-3-W1-141-2017</a></li>
+    <li>Chojnacki, M., Banks, M. E., Fenton, L. K., &amp; Urso, A. C. (2019). Boundary condition controls on the high-sand-flux regions of Mars. <i>Geology</i>, 47, 427–430. <a href="https://doi.org/10.1130/G45793.1">doi:10.1130/G45793.1</a></li>
+    <li>Kirk, R. L., et al. (2020). Evaluating stereo DTM quality at Jezero Crater, Mars with HRSC, CTX, and HiRISE images. <i>ISPRS Archives</i>, XLIII-B3-2020, 1129–1136. <a href="https://doi.org/10.5194/isprs-archives-XLIII-B3-2020-1129-2020">doi:10.5194/isprs-archives-XLIII-B3-2020-1129-2020</a></li>
+    <li>Sutton, S. S., Chojnacki, M., McEwen, A. S., Kirk, R. L., et al. (2022). Revealing active Mars with HiRISE digital terrain models. <i>Remote Sensing</i>, 14(10), 2403. <a href="https://doi.org/10.3390/rs14102403">doi:10.3390/rs14102403</a></li>
+  </ol>
+</section>
+
+<footer>HiRISE Ortho Selection · method introduced in obj_pipeline v6.3.0, checked for v6.3.9 by Raymundo "R@y" Olguin, HiRISE Operations Center (HiROC), Lunar and Planetary Laboratory, University of Arizona. Implemented in <code>obj_pipeline/ingest/ortho_science.py</code>; tested in <code>tests/test_ortho_selection.py</code>.</footer>
+</div>
+
+<script>
+(function(){
+  var GRID={1:0.25,2:0.5,4:1.0}, LET={1:"A",2:"B",4:"C"};
+  var st={dz:1.0, b:[1,2]};
+  var $=function(id){return document.getElementById(id);};
+  function E(g,e,dz){var dx=dz*Math.tan(e*Math.PI/180);return [Math.hypot(g,dx),dx];}
+  function css(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();}
+
+  function compute(){
+    var im=[0,1].map(function(i){
+      var e=+$("e"+i).value, c=+$("c"+i).value, j=$("j"+i).checked, g=GRID[st.b[i]];
+      var r=E(g,e,st.dz);
+      return {i:i,e:e,c:c,j:j,g:g,L:LET[st.b[i]],E:r[0],dx:r[1],out:"",why:""};
+    });
+    var cmax=Math.max(im[0].c,im[1].c);
+    var live=im.filter(function(x){ if(x.c<cmax-1){x.out="drop";x.why="coverage "+x.c.toFixed(1)+" % is more than 1 point below "+cmax.toFixed(1)+" %";return false;} return true;});
+    var clean=live.filter(function(x){return !x.j;});
+    if(clean.length && clean.length<live.length){ live.forEach(function(x){ if(x.j){x.out="drop";x.why="flagged for spacecraft jitter";}}); live=clean; }
+    live.sort(function(a,b){return a.E-b.E;});
+    var win=live[0], tie=live.length>1 && live[1].E<=win.E*1.05;
+    if(tie){ live.sort(function(a,b){return a.e-b.e || b.c-a.c;}); win=live[0]; }
+    im.forEach(function(x){ if(x===win) x.out="win"; else if(!x.out){x.out="lose";} });
+    return {im:im,win:win,tie:tie};
+  }
+
+  function plot(r){
+    var svg=$("plot"), W=660,H=270, L=52,R=14,T=14,B=36, dz=st.dz;
+    var emax=30, ymaxRaw=Math.max(1.1, E(1.0,emax,dz)[0]);
+    var ymax=Math.ceil(ymaxRaw*5)/5;
+    var x=function(e){return L+(W-L-R)*e/emax;}, y=function(v){return T+(H-T-B)*(1-v/ymax);};
+    var s="";
+    var stepY = ymax>2?0.5:0.2;
+    for(var v=0; v<=ymax+1e-9; v+=stepY){ s+='<line x1="'+L+'" x2="'+(W-R)+'" y1="'+y(v)+'" y2="'+y(v)+'" stroke="'+css("--line")+'" stroke-width="1"/>'
+      +'<text x="'+(L-8)+'" y="'+(y(v)+4)+'" text-anchor="end">'+v.toFixed(1)+'</text>'; }
+    for(var e=0;e<=30;e+=5){ s+='<text x="'+x(e)+'" y="'+(H-B+16)+'" text-anchor="middle">'+e+'°</text>'; }
+    s+='<text x="'+((L+W-R)/2)+'" y="'+(H-4)+'" text-anchor="middle">emission angle e</text>';
+    s+='<text x="14" y="'+((T+H-B)/2)+'" text-anchor="middle" transform="rotate(-90 14 '+((T+H-B)/2)+')">E (m)</text>';
+    var cols={0.25:css("--data"),0.5:css("--accent"),1.0:css("--muted")};
+    [0.25,0.5,1.0].forEach(function(g){ var d=""; for(var e=0;e<=30;e+=0.5){ d+=(e?"L":"M")+x(e).toFixed(1)+" "+y(E(g,e,dz)[0]).toFixed(1); }
+      s+='<path d="'+d+'" fill="none" stroke="'+cols[g]+'" stroke-width="2"/>'; });
+    r.im.forEach(function(m){ var cx=x(m.e), cy=y(m.E), win=m.out==="win";
+      s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(win?7:5)+'" fill="'+(win?css("--ok"):css("--surface"))+'" stroke="'+cols[m.g]+'" stroke-width="2"/>'
+        +'<text x="'+(cx+10)+'" y="'+(cy-8)+'" style="fill:'+css("--ink")+'">'+(m.i+1)+'</text>'; });
+    svg.innerHTML=s;
+  }
+
+  function render(){
+    var r=compute();
+    r.im.forEach(function(m){
+      $("e"+m.i+"v").textContent=m.e.toFixed(1)+"°";
+      $("c"+m.i+"v").textContent=m.c.toFixed(1)+" %";
+      $("g"+m.i).textContent=m.L+" "+m.g.toFixed(2);
+      $("m"+m.i).textContent=m.dx.toFixed(3);
+      $("s"+m.i).textContent=m.E.toFixed(3);
+      var stEl=$("st"+m.i);
+      stEl.className="status "+m.out;
+      stEl.textContent=m.out==="win"?"texture":(m.out==="drop"?"backup":"not chosen");
+    });
+    var w=r.win, o=r.im[1-w.i], txt;
+    if(o.out==="drop") txt="<b>Image "+(w.i+1)+"</b> ("+w.L+" ortho) is the texture: image "+(o.i+1)+" is a backup because its "+o.why+".";
+    else if(r.tie) txt="<b>Image "+(w.i+1)+"</b> ("+w.L+" ortho) is the texture: the two scores are within 5 % ("+w.E.toFixed(3)+" vs "+o.E.toFixed(3)+" m), so the lower emission angle decides.";
+    else txt="<b>Image "+(w.i+1)+"</b> ("+w.L+" ortho, E = "+w.E.toFixed(3)+" m) is the texture: image "+(o.i+1)+" scores "+o.E.toFixed(3)+" m. "
+      +(w.g>o.g?"Its pixels are coarser, but the other image would sit "+o.dx.toFixed(2)+" m off the terrain.":(w.g<o.g?"Its finer pixels outweigh the "+w.dx.toFixed(2)+" m shift from its viewing angle.":"Same grid, so its smaller viewing angle wins."));
+    $("verdict").innerHTML=txt;
+    plot(r);
+  }
+
+  document.querySelector(".calc-top .seg").addEventListener("click",function(ev){
+    var b=ev.target.closest("button"); if(!b) return;
+    st.dz=+b.dataset.dz; $("dz").value=st.dz;
+    this.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});
+    render();
+  });
+  $("dz").addEventListener("input",function(){ var v=parseFloat(this.value); if(v>0){st.dz=v;
+    document.querySelectorAll(".calc-top .seg button").forEach(function(x){x.setAttribute("aria-pressed",Math.abs(+x.dataset.dz-v)<1e-9?"true":"false");}); render();}});
+  document.querySelectorAll(".img").forEach(function(box){
+    var i=+box.dataset.i;
+    box.querySelector(".seg").addEventListener("click",function(ev){
+      var b=ev.target.closest("button"); if(!b) return;
+      st.b[i]=+b.dataset.b;
+      this.querySelectorAll("button").forEach(function(x){x.setAttribute("aria-pressed",x===b?"true":"false");});
+      render();
+    });
+  });
+  ["e0","e1","c0","c1","j0","j1"].forEach(function(id){ $(id).addEventListener("input",render); $(id).addEventListener("change",render); });
+  if(window.matchMedia){ var mq=window.matchMedia("(prefers-color-scheme: dark)"); if(mq.addEventListener) mq.addEventListener("change",render); }
+  new MutationObserver(render).observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+  render();
+})();
+</script>
+
+</body>
+</html>
