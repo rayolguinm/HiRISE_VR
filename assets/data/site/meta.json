@@ -1,0 +1,31 @@
+{
+  "title": "Gully Monitoring crater, HiRISE DTM window",
+  "dtm_id": "DTEEC_084570_1445_066516_1445_A01",
+  "ortho": "ESP_066516_1445_RED_C_01_ORTHO.JP2",
+  "grid": 598,
+  "post_m": 6.0236993949486,
+  "native_post_m": 1.0039498991581,
+  "downsample": 6,
+  "size_m": 3598.1564385826305,
+  "z_offset_m": 1422.79931640625,
+  "z_scale_m": 0.010659263732613987,
+  "nodata": 65535,
+  "relief_m": 698.544189453125,
+  "window_centre_map_m": [
+    -928.1516817715631,
+    -2076408.8374596988
+  ],
+  "window_centre_px": [
+    1800,
+    3720
+  ],
+  "texture_px": 3072,
+  "sun": {
+    "incidence_deg": 39.415879,
+    "sub_solar_azimuth_deg": 184.878285,
+    "north_azimuth_deg": 270.0,
+    "note": "Azimuths clockwise from the image +sample direction (PDS RDR convention); north azimuth 270 means north is up, so 183 deg means the sun is in the west."
+  },
+  "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin.",
+  "window": "598 x 598 posts at downsampling factor 6 from the native 1 m DTM; texture from the C (1.0 m) grid of the selected ortho"
+}

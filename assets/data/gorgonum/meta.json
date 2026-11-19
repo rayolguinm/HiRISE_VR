@@ -1,0 +1,41 @@
+{
+  "title": "Gorgonum Chaos, HiRISE DTM window",
+  "dtm_id": "DTEEC_074396_1425_074251_1425_A01",
+  "ortho": "ESP_074251_1425_RED_C_01_ORTHO.JP2",
+  "grid": 598,
+  "post_m": 6.0203299020984,
+  "native_post_m": 1.0033883170164,
+  "downsample": 6,
+  "size_m": 3596.1437281867775,
+  "z_offset_m": -441.9695129394531,
+  "z_scale_m": 0.005947211061801829,
+  "nodata": 65535,
+  "relief_m": 389.7445297241211,
+  "window_centre_map_m": [
+    -387.80958452693903,
+    -2187698.083168186
+  ],
+  "window_centre_px": [
+    2560,
+    4300
+  ],
+  "texture_px": 3072,
+  "sun": {
+    "incidence_deg": 49.334975,
+    "sub_solar_azimuth_deg": 183.297866,
+    "north_azimuth_deg": 270.000001,
+    "note": "Azimuths clockwise from the image +sample direction (PDS RDR convention); north azimuth 270 means north is up, so 183 deg means the sun is in the west."
+  },
+  "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin.",
+  "stereo_pair": {
+    "ESP_074396_1425": {
+      "emission_deg": 19.773304,
+      "binning": 1
+    },
+    "ESP_074251_1425": {
+      "emission_deg": 6.489691,
+      "binning": 1
+    }
+  },
+  "window": "598 x 598 posts at downsampling factor 6 from the native 1 m DTM; texture from the C (1.0 m) grid of the selected ortho"
+}
