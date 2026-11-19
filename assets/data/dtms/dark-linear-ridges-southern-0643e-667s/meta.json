@@ -1,0 +1,26 @@
+{
+ "title": "Dark_Linear_Ridges_Southern_0643E_667S",
+ "slug": "dark-linear-ridges-southern-0643e-667s",
+ "dtm_id": "DTEPD_091978_1130_092756_1130_A01",
+ "ortho": "ESP_091978_1130_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 10.305882352941177,
+ "native_post_m": 2.0,
+ "downsample": 5.15,
+ "size_m": 2628.0,
+ "z_offset_m": 600.285400390625,
+ "z_scale_m": 0.0018614445612980769,
+ "nodata": 65535,
+ "relief_m": 120.993896484375,
+ "window_px": [
+  2010,
+  2412,
+  1314
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 6.174804687500002,
+ "projection": "POLAR STEREOGRAPHIC",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

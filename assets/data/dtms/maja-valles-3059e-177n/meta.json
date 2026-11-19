@@ -1,0 +1,26 @@
+{
+ "title": "Maja_Valles_3059E_177N",
+ "slug": "maja-valles-3059e-177n",
+ "dtm_id": "DTEEC_067309_1980_067441_1980_A01",
+ "ortho": "ESP_067309_1980_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 14.046060047973103,
+ "native_post_m": 1.0097956899445,
+ "downsample": 13.91,
+ "size_m": 3581.7453122331412,
+ "z_offset_m": -2496.732666015625,
+ "z_scale_m": 0.0018541391225961538,
+ "nodata": 65535,
+ "relief_m": 120.51904296875,
+ "window_px": [
+  3118,
+  936,
+  3547
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 2.92250506157713,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

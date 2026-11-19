@@ -1,0 +1,26 @@
+{
+ "title": "Landing_Spacex_Starship_Phlegra_1636E_354N",
+ "slug": "landing-spacex-starship-phlegra-1636e-354n",
+ "dtm_id": "DTEEC_060707_2160_060773_2160_A01",
+ "ortho": "ESP_060707_2160_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 14.608717485153441,
+ "native_post_m": 1.0038326485352,
+ "downsample": 14.55,
+ "size_m": 3725.2229587141273,
+ "z_offset_m": -3309.0390625,
+ "z_scale_m": 0.003431591796875,
+ "nodata": 65535,
+ "relief_m": 223.053466796875,
+ "window_px": [
+  5080,
+  1292,
+  3711
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 4.543277640850328,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

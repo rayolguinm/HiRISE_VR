@@ -1,0 +1,26 @@
+{
+ "title": "Gullies_Tempe_Terra_4905E_304N",
+ "slug": "gullies-tempe-terra-4905e-304n",
+ "dtm_id": "DTEEC_018518_2295_018795_2295_A01",
+ "ortho": "ESP_018518_2295_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 19.26450361416415,
+ "native_post_m": 0.99866810766657,
+ "downsample": 19.29,
+ "size_m": 4912.448421611858,
+ "z_offset_m": -4010.8466796875,
+ "z_scale_m": 0.01740866511418269,
+ "nodata": 65535,
+ "relief_m": 1131.563232421875,
+ "window_px": [
+  2143,
+  936,
+  4919
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.4665681530281476,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

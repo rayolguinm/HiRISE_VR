@@ -1,0 +1,26 @@
+{
+ "title": "Coogoon_Valles_3357E_170N",
+ "slug": "coogoon-valles-3357e-170n",
+ "dtm_id": "DTEED_070883_1970_062547_1970_A01",
+ "ortho": "ESP_070883_1970_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 14.843852858472404,
+ "native_post_m": 2.0198412374122,
+ "downsample": 7.35,
+ "size_m": 3785.182478910463,
+ "z_offset_m": -2995.06103515625,
+ "z_scale_m": 0.005591470102163461,
+ "nodata": 65535,
+ "relief_m": 363.445556640625,
+ "window_px": [
+  7114,
+  1159,
+  1874
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 10.514912010741476,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

@@ -1,0 +1,26 @@
+{
+ "title": "Brain_Terrain_3093E_436N",
+ "slug": "brain-terrain-3093e-436n",
+ "dtm_id": "DTEEC_079099_2240_078954_2240_A01",
+ "ortho": "ESP_079099_2240_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.373681141671131,
+ "native_post_m": 1.0008395943646,
+ "downsample": 15.36,
+ "size_m": 3920.2886911261385,
+ "z_offset_m": -3560.449951171875,
+ "z_scale_m": 0.0038065542367788463,
+ "nodata": 65535,
+ "relief_m": 247.426025390625,
+ "window_px": [
+  2321,
+  1034,
+  3917
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 2.9658669424798623,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

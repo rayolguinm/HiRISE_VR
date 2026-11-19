@@ -1,0 +1,26 @@
+{
+ "title": "Aram_Chaos_3393E_293N",
+ "slug": "aram-chaos-3393e-293n",
+ "dtm_id": "DTEEC_059382_1830_059237_1830_A01",
+ "ortho": "ESP_059382_1830_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 13.54659101888148,
+ "native_post_m": 1.011827975927,
+ "downsample": 13.39,
+ "size_m": 3454.3807098147777,
+ "z_offset_m": -2947.292236328125,
+ "z_scale_m": 0.003906614332932692,
+ "nodata": 65535,
+ "relief_m": 253.929931640625,
+ "window_px": [
+  4170,
+  1072,
+  3414
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.7438920786523817,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

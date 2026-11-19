@@ -1,0 +1,26 @@
+{
+ "title": "Landon_Valles_basin_3304E_195S",
+ "slug": "landon-valles-basin-3304e-195s",
+ "dtm_id": "DTEEC_034143_1605_034209_1605_A01",
+ "ortho": "ESP_034143_1605_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 12.299514729279123,
+ "native_post_m": 1.0094548619138,
+ "downsample": 12.18,
+ "size_m": 3136.3762559661764,
+ "z_offset_m": -1953.9691162109375,
+ "z_scale_m": 0.0014491605318509616,
+ "nodata": 65535,
+ "relief_m": 94.1954345703125,
+ "window_px": [
+  3198,
+  1034,
+  3107
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.025448771582204,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

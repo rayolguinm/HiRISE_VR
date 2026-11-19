@@ -1,0 +1,26 @@
+{
+ "title": "Gorgonum_Chaos_1881E_369S",
+ "slug": "gorgonum-chaos-1881e-369s",
+ "dtm_id": "DTEEC_074396_1425_074251_1425_A01",
+ "ortho": "ESP_074396_1425_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 14.023827301358626,
+ "native_post_m": 1.0033883170164,
+ "downsample": 13.98,
+ "size_m": 3576.0759618464494,
+ "z_offset_m": -441.2914733886719,
+ "z_scale_m": 0.005948309971736027,
+ "nodata": 65535,
+ "relief_m": 386.6401481628418,
+ "window_px": [
+  3093,
+  994,
+  3564
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.1971784688774156,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

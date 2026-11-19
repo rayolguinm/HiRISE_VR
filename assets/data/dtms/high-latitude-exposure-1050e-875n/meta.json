@@ -1,0 +1,26 @@
+{
+ "title": "High_Latitude_Exposure_1050E_875N",
+ "slug": "high-latitude-exposure-1050e-875n",
+ "dtm_id": "DTEPD_009280_2675_009426_2675_A01",
+ "ortho": "PSP_009280_2675_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 16.611764705882354,
+ "native_post_m": 2.0,
+ "downsample": 8.31,
+ "size_m": 4236.0,
+ "z_offset_m": -2527.30322265625,
+ "z_scale_m": 0.006221619591346154,
+ "nodata": 65535,
+ "relief_m": 404.4052734375,
+ "window_px": [
+  4068,
+  3020,
+  2118
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 8.279296874999998,
+ "projection": "POLAR STEREOGRAPHIC",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

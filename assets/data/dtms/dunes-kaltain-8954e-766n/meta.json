@@ -1,0 +1,26 @@
+{
+ "title": "Dunes_Kaltain_8954E_766N",
+ "slug": "dunes-kaltain-8954e-766n",
+ "dtm_id": "DTEPC_053324_2570_053377_2570_A01",
+ "ortho": "ESP_053324_2570_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 11.60392156862745,
+ "native_post_m": 1.0,
+ "downsample": 11.6,
+ "size_m": 2959.0,
+ "z_offset_m": -4337.7548828125,
+ "z_scale_m": 0.0008225060096153846,
+ "nodata": 65535,
+ "relief_m": 53.462890625,
+ "window_px": [
+  1702,
+  1682,
+  2959
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 4.4736328125,
+ "projection": "POLAR STEREOGRAPHIC",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

@@ -1,0 +1,26 @@
+{
+ "title": "Bernard_Crater_Channels_2061E_245S",
+ "slug": "bernard-crater-channels-2061e-245s",
+ "dtm_id": "DTEEC_093726_1555_093291_1555_A01",
+ "ortho": "ESP_093726_1555_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 13.493547057315858,
+ "native_post_m": 1.0081612949357,
+ "downsample": 13.38,
+ "size_m": 3440.854499615544,
+ "z_offset_m": -17.8791446685791,
+ "z_scale_m": 0.0007381950965294471,
+ "nodata": 65535,
+ "relief_m": 47.98268127441406,
+ "window_px": [
+  1742,
+  770,
+  3413
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 2.5125269772225645,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

@@ -1,0 +1,26 @@
+{
+ "title": "Argyre_Planitia_Valley_3348E_297S",
+ "slug": "argyre-planitia-valley-3348e-297s",
+ "dtm_id": "DTEEC_066886_1500_067018_1500_A01",
+ "ortho": "ESP_066886_1500_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 13.931171846466746,
+ "native_post_m": 1.006359439334,
+ "downsample": 13.84,
+ "size_m": 3552.44882084902,
+ "z_offset_m": -447.34295654296875,
+ "z_scale_m": 0.00436388925405649,
+ "nodata": 65535,
+ "relief_m": 283.6528015136719,
+ "window_px": [
+  2621,
+  842,
+  3530
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 2.790216113573627,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

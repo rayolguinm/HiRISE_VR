@@ -1,0 +1,26 @@
+{
+ "title": "Aeolis_Planum_1546E_493S",
+ "slug": "aeolis-planum-1546e-493s",
+ "dtm_id": "DTEEC_008621_1750_016269_1750_A01",
+ "ortho": "PSP_008621_1750_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.017417194863558,
+ "native_post_m": 1.0117414490595,
+ "downsample": 14.84,
+ "size_m": 3829.4413846902075,
+ "z_offset_m": -2423.430908203125,
+ "z_scale_m": 0.002224571814903846,
+ "nodata": 65535,
+ "relief_m": 144.59716796875,
+ "window_px": [
+  3454,
+  1153,
+  3785
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.363625669987977,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

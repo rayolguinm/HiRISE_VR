@@ -1,0 +1,26 @@
+{
+ "title": "Chaos_Terrain_3195E_168S",
+ "slug": "chaos-terrain-3195e-168s",
+ "dtm_id": "DTEED_082989_1630_083055_1630_A01",
+ "ortho": "ESP_082989_1630_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 13.046211455159584,
+ "native_post_m": 2.0199052344054,
+ "downsample": 6.46,
+ "size_m": 3326.783921065694,
+ "z_offset_m": -138.76260375976562,
+ "z_scale_m": 0.007228752723106971,
+ "nodata": 65535,
+ "relief_m": 469.8689270019531,
+ "window_px": [
+  1438,
+  495,
+  1647
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 2.8869811854595535,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

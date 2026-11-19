@@ -1,0 +1,26 @@
+{
+ "title": "Guilled_Crater_2226E_438S",
+ "slug": "guilled-crater-2226e-438s",
+ "dtm_id": "DTEED_012904_1360_012759_1360_A01",
+ "ortho": "ESP_012759_1360_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 16.153730544443473,
+ "native_post_m": 2.0015555339325,
+ "downsample": 8.07,
+ "size_m": 4119.2012888330855,
+ "z_offset_m": 1159.274169921875,
+ "z_scale_m": 0.016091950871394232,
+ "nodata": 65535,
+ "relief_m": 1045.976806640625,
+ "window_px": [
+  2110,
+  589,
+  2058
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.957648359981298,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

@@ -1,0 +1,26 @@
+{
+ "title": "Flute_Casts_Ares_Vallis_3297E_159N",
+ "slug": "flute-casts-ares-vallis-3297e-159n",
+ "dtm_id": "DTEEC_009867_1960_009722_1960_A01",
+ "ortho": "PSP_009867_1960_RED_C_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 15.278337787556767,
+ "native_post_m": 1.0101052983736,
+ "downsample": 15.13,
+ "size_m": 3895.9761358269757,
+ "z_offset_m": -3586.82421875,
+ "z_scale_m": 0.0011559795673076923,
+ "nodata": 65535,
+ "relief_m": 75.138671875,
+ "window_px": [
+  3928,
+  1217,
+  3857
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 3.7171874980148485,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}

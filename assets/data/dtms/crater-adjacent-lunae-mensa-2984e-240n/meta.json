@@ -1,0 +1,26 @@
+{
+ "title": "Crater_Adjacent_Lunae_Mensa_2984E_240N",
+ "slug": "crater-adjacent-lunae-mensa-2984e-240n",
+ "dtm_id": "DTEED_037823_2045_037678_2045_A01",
+ "ortho": "ESP_037823_2045_RED_D_01_ORTHO.JP2",
+ "grid": 256,
+ "post_m": 14.738922774589371,
+ "native_post_m": 2.0163225898714,
+ "downsample": 7.31,
+ "size_m": 3758.4253075202896,
+ "z_offset_m": -2273.95166015625,
+ "z_scale_m": 0.006018524639423077,
+ "nodata": 65535,
+ "relief_m": 391.2041015625,
+ "window_px": [
+  4748,
+  862,
+  1864
+ ],
+ "texture_px": 1024,
+ "texture_source_gsd_m": 7.132596032884817,
+ "projection": "EQUIRECTANGULAR",
+ "ortho_emission_deg": null,
+ "valid_fraction": 1.0,
+ "credit": "HiRISE data: NASA/JPL/University of Arizona. DTM produced at HiROC by Raymundo \"R@y\" Olguin."
+}
