@@ -32,7 +32,7 @@
   var bar = $("bar"), rail = $("rail"), hero = $("top");
   var links = Array.prototype.slice.call(rail.querySelectorAll("a"));
   function onScroll() {
-    var past = !hero || hero.getBoundingClientRect().bottom < 70;
+    var past = !hero || hero.getBoundingClientRect().bottom < 150;   // before the hero credit reaches the bar
     bar.classList.toggle("solid", past);
     rail.classList.toggle("show", past);
   }
