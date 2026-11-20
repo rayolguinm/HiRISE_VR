@@ -22,7 +22,7 @@
 <link rel="canonical" href="https://rayolguinm.github.io/HiRISE_VR/">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=Public+Sans:ital,wght@0,300..700;1,400&family=DM+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/css/site.css">
 <script type="importmap">{"imports":{
   "three":"./assets/vendor/three/three.module.min.js",
@@ -126,11 +126,12 @@
     <p>Follow one real HiRISE terrain, the Gully Monitoring DTM, through the HiRISE 3D Topographic Reconstruction Pipeline. Step through the four views and drag the terrain to orbit it. Technical terms are defined in the <a href="science.html#glossary">HiRISE glossary</a>.</p>
     <p class="srcnote">Source: Pipeline User Manual (v6.3.9), Chapter 1; HiRISE Pipeline Anatomy</p>
   </div>
+  <p class="tabcap"><b>Table 1.1</b>Gully Monitoring DTM, DTEEC_084570_1445_066516_1445_A01</p>
   <ul class="stats" aria-label="Gully Monitoring DTM in numbers">
-    <li><b>7291 × 5172</b><span>elevation posts in the full DTM</span></li>
-    <li><b>1 m</b><span>post spacing</span></li>
-    <li><b>0.25 m</b><span>finest orthoimage grid released with this DTM (A)</span></li>
-    <li><b id="statRelief">698 m</b><span>of relief in this 3.6 km window</span></li>
+    <li><b>7291 × 5172</b><span>Elevation posts, full DTM</span></li>
+    <li><b>1 m</b><span>Post spacing</span></li>
+    <li><b>0.25 m</b><span>Finest orthoimage grid released (A)</span></li>
+    <li><b id="statRelief">698 m</b><span>Relief in this 3.6 km window</span></li>
   </ul>
   <div class="tool proc">
     <ol class="ptabs" id="pTabs" role="tablist" aria-label="Pipeline views">
@@ -159,6 +160,7 @@
       </div>
     </div>
   </div>
+  <p class="figcap"><b>Figure 1.1</b>The Gully Monitoring DTM in the four pipeline views. Drag the terrain to orbit it.</p>
 </section>
 </div>
 
@@ -183,6 +185,7 @@
       </div>
     </div>
   </div>
+  <p class="figcap"><b>Figure 2.1</b>RUN.bat, the five-question front end, with the console the pipeline prints.</p>
   <p class="small muted">A simulation of the real front end: the questions, menus and console blocks follow the Pipeline User Manual. Installation, every flag and the full console reference are in the <a href="science.html#frontend">pipeline reference</a>.</p>
 </section>
 </div>
@@ -240,6 +243,7 @@
       <p class="small muted" style="margin:6px 0 0">ESP_084570_1445 was acquired mostly in bin 2, so its 0.25 m grid-A orthoimage is an interpolation of 2 × 2-summed pixels and is rejected; no 0.5 m (B) orthoimage is released for it, so its best real candidate is the 1 m C orthoimage (E = 1.001 m). With the A orthoimages downloaded, ESP_066516_1445_RED_A_01_ORTHO.JP2 becomes the texture. In the run shown on this site only the two C orthoimages were in the folder, so the pipeline used ESP_066516_1445_RED_C_01_ORTHO.JP2 as a backup (E = 1.000 m): the same image wins either way.</p>
     </div>
   </div>
+  <p class="figcap"><b>Figure 3.1</b>Horizontal displacement of a DTM height error with emission angle, and the score E for each orthoimage.</p>
 </section>
 </div>
 </div>
@@ -273,6 +277,7 @@
       <svg id="graticule" viewBox="0 0 360 180" role="img" aria-label="Longitude and latitude grid of Mars with the site at 352.5 degrees east, 35.1 degrees south"></svg>
       <p class="small muted" style="margin:10px 0 0">Pattern: &lt;Region&gt;_&lt;Longitude&gt;E_&lt;Latitude&gt;N|S, in tenths of a degree.</p>
     </div></div>
+  <p class="figcap"><b>Figure 4.1</b>Parts of a site folder name: region, longitude and latitude.</p>
     <div class="tool"><div class="tool-h"><h3>Inside a site folder</h3><span>Try breaking the chain</span></div><div class="tool-b">
       <p class="small muted ftlegend"><code>&lt;id&gt;</code> = DTEEC_084570_1445_066516_1445_A01, the DTM product ID</p>
       <ul class="ftree" id="ftree" aria-label="Site folder written by the pipeline">
@@ -302,6 +307,7 @@
       <div class="bseg" role="group" id="breakSeg" aria-label="Try breaking the chain"><button type="button" data-b="ok" aria-pressed="true">Keep together</button><button type="button" data-b="rename" aria-pressed="false">Rename the JPG</button><button type="button" data-b="move" aria-pressed="false">Move the MTL</button></div>
       <p class="fexp" id="bexp" aria-live="polite"></p>
     </div></div>
+  <p class="figcap"><b>Figure 4.2</b>Site folder tree and the mtllib and map_Kd links Twinmotion follows.</p>
   </div>
 </section>
 </div>
@@ -336,6 +342,7 @@
       <ol class="steplist" id="galList"></ol>
     </div>
   </div></div>
+  <p class="figcap"><b>Figure 5.1</b>Twinmotion steps from import to the Meta Quest headset.</p>
   <h3 class="subh">Choose your speed before you click VR</h3>
   <div class="speeds" id="speeds"></div>
   <div class="comfort" aria-hidden="true"></div>
@@ -403,6 +410,7 @@
     <ul class="dxcards" id="dxCards"></ul>
     <p class="small muted dxnote">Each window is a square of 256 × 256 posts cut from the valid interior of the DTM, read directly from the PDS product, with the texture from the browse version of the selected RED orthoimage (2.5 to 13.5 m per pixel). Elevations in the table are for the full DTM. HiRISE data: NASA/JPL/University of Arizona.</p>
   </div>
+  <p class="figcap"><b>Figure 6.1</b>The 40 published DTMs: map, list and 3D viewer.</p>
 </section>
 </div>
 
